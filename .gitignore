@@ -54,3 +54,6 @@ desktop.ini
 # Other
 *.log
 *.bak
+*.nc
+
+iconspy/test/test_data/*
