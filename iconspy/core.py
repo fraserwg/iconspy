@@ -87,8 +87,8 @@ class ModelStation:
             self.model_lon,
             self.model_lat,
             transform=ccrs.PlateCarree(),
-            marker="o"
-            label=self.name
+            marker="o",
+            label=self.name,
         )
 
 
@@ -300,7 +300,7 @@ class _ReconstructedSection(Section):
         return f"ReconstructedSection({self.name}, {self.station_a.name}, {self.station_b.name}, {self.section_type})"
 
 
-class CombinedSection(ispy.Section):
+class CombinedSection(Section):
     def __init__(self, name, section_list, ds_IcD):
         # Want to be able to combine two section into one.
 
