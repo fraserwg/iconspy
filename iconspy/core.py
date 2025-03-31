@@ -88,6 +88,7 @@ class ModelStation:
             self.model_lat,
             transform=ccrs.PlateCarree(),
             marker="o"
+            label=self.name
         )
 
 
@@ -299,17 +300,25 @@ class _ReconstructedSection(Section):
         return f"ReconstructedSection({self.name}, {self.station_a.name}, {self.station_b.name}, {self.section_type})"
 
 
-class CombinedSection(Section):
-    def __init__(self, name, section_list):
-        raise NotImplementedError("Not yet implemented")
+class CombinedSection(ispy.Section):
+    def __init__(self, name, section_list, ds_IcD):
         # Want to be able to combine two section into one.
+
+        # Check the sections connect...
+        assert section_list[0].vertex_path.isel(step_in_path_v=-1) == section_list[1].vertex_path.isel(step_in_path_v=0)
         self.name = name
-        self.station_a = section.station_a
-        self.station_b = section.station_b
-        self.section_type = section.section_type
-        self.vertex_path = vertex_path
-        self.edge_path = edge_path
-        self.edge_orientation = edge_orientation
+        self.station_a = section_list[0].station_a
+        self.station_b = section_list[-1].station_b
+        
+        if section_list[0].section_type == section_list[1].section_type:
+            section_type = section_list[0].section_type
+        else:
+            section_type = "mixed"
+        self.section_type = section_type
+        
+        self.vertex_path = xr.concat([section_list[0].vertex_path.isel(step_in_path_v=slice(0, -1)), section_list[1].vertex_path], dim="step_in_path_v")
+        self.edge_path = xr.concat([section_list[0].edge_path, section_list[1].edge_path], dim="step_in_path")
+        self.edge_orientation = None  # We can't be sure that the two sections have the same sign convention
         self.vlon = ds_IcD["vlon"].sel(vertex=self.vertex_path)
         self.vlat = ds_IcD["vlat"].sel(vertex=self.vertex_path)   
 
