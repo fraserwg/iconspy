@@ -1,0 +1,48 @@
+name: ispy_py311
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy
+  - xarray
+  - cartopy
+  - networkx
+  - shapely
+  - matplotlib
+  - scipy
+  - pip
+  # testing
+  - pytest
+  # documentation
+  - sphinx
+  - sphinx_rtd_theme
+  - sphinx-autodoc-typehints
+  - sphinx-copybutton
+  - pygments
+  - nbsphinx
+  - nbconvert
+  # pyicon requirements
+  - netcdf4
+  - pandas
+  - cmocean
+  - ipywidgets
+  - ipykernel
+  - jupytext
+  - nbconvert
+  - healpy
+  - dask[complete]
+  - intake
+  - requests
+  - zarr
+  - intake-xarray
+  - intake-esm
+  - ipdb
+  # extras
+  - flox
+  - numba
+  - numbagg
+  - bottleneck
+  - dask-mpi
+  - distributed
+  - pip:
+    - git+https://gitlab.dkrz.de/m300602/pyicon.git
