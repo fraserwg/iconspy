@@ -31,6 +31,7 @@ jobs:
       - name: Build documentation
         shell: bash -el {0}
         run: |
+          pip install .
           cd docs
           make html
 
