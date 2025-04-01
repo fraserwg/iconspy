@@ -9,6 +9,36 @@ description = "ICON Sections in PYthon"
 authors = [
     { name = "Fraser William Goldsworth", email = "frasergocean@gmail.com" }
 ]
+dependencies = [
+    # Core dependencies
+    "numpy",
+    "xarray",
+    "cartopy",
+    "networkx",
+    "shapely",
+    "matplotlib",
+    "scipy",
+    "pip",
+    "pyicon-diagnostics @ git+https://gitlab.dkrz.de/m300602/pyicon.git",
+    
+    # Pyicon dependencies
+    "netcdf4",
+    "pandas",
+    "cmocean",
+    "ipywidgets",
+    "ipykernel",
+    "jupytext",
+    "nbconvert",
+    "healpy",
+    "dask[complete]",
+    "intake",
+    "requests",
+    "zarr",
+    "intake-xarray",
+    "intake-esm",
+    "ipdb",
+]
+
 readme = "README.md"
 license = { text = "BSD-3-Clause" }
 requires-python = ">=3.11"
@@ -19,7 +49,34 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-dev = []  # Add development dependencies here
+dev = [
+    # Testing
+    "pytest",
+
+    # Documentation
+    "sphinx",
+    "sphinx_rtd_theme",
+    "sphinx-autodoc-typehints",
+    "sphinx-copybutton",
+    "pygments",
+    "nbsphinx",
+    "nbconvert",
+    "myst-parser",
+
+    # Extras
+    "flox",
+    "numba",
+    "numbagg",
+    "bottleneck",
+    "dask-mpi",
+    "distributed",
+]
 
 [tool.setuptools.packages.find]
 include = ["iconspy"]
+
+[project.urls]
+Homepage = "https://github.com/fraserwg/iconspy"
+Documentation = "https://fraserwg.github.io/iconspy/"
+Source = "https://github.com/fraserwg/iconspy"
+Tracker = "https://github.com/fraserwg/iconspy/issues"
