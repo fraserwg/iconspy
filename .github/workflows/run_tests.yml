@@ -27,9 +27,11 @@ jobs:
           auto-activate-base: "false"
 
       - name: Install package
+        shell: bash -el {0}
         run: |
           pip install .
 
       - name: Run tests
+        shell: bash -el {0}
         run: |
           pytest
