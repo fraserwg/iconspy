@@ -25,10 +25,11 @@ jobs:
           channels: conda-forge,nodefaults
           activate-environment: ispy_py311
           environment-file: environment.yml
-          conda-remove-defaults: true
-          auto-activate-base: false
+          conda-remove-defaults: "true"
+          auto-activate-base: "false"
 
       - name: Build documentation
+        shell: bash -el {0}
         run: |
           cd docs
           make html
