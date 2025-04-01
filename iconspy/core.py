@@ -32,29 +32,116 @@ class _Name:
         return self.name.replace(" ", "")
 
 class TargetStation:
+    """Represents a target station
+
+    Parameters
+    ----------
+    name : str
+        Name of the target station
+    lon : float
+        Longitude of the target station
+    lat : float
+        Latitude of the target station
+    boundary : bool, optional
+        Whether the station should be sited on a boundary point or not, by default True
+        
+    Attributes
+    ----------
+    name : str
+        Name of the target station
+    target_lon : float
+        Longitude of the target station
+    target_lat : float
+        Latitude of the target station
+    boundary : bool
+        Whether the station should be sited on a boundary point or not
+        
+    Example
+    -------
+    >>> import iconspy as ispy
+    >>> target_station = ispy.TargetStation("My Station", 10.0, 20.0)
+    >>> target_station.plot()
+    """
     def __init__(self, name, lon, lat, boundary=True):
         self.name = _Name(name)
         self.target_lon = lon
         self.target_lat = lat
         self.boundary = boundary
 
-    def to_model_station(self, ds_IcD):
+    def to_model_station(self, ds_IsD):
+        """Converts the target station to a model station
+
+        Parameters
+        ----------
+        ds_IsD : xarray.Dataset
+            A dataset contining the model grid information, having been
+            operated on by iconspy.convert_tgrid_data()
+
+        Returns
+        -------
+        iconspy.ModelStation
+            A model station object representing the closest model grid point
+            to the target station
+        """
         if self.boundary:
-            station = self.to_boundary_model_station(ds_IcD)
+            station = self.to_boundary_model_station(ds_IsD)
         else:
-            station = self.to_wet_model_station(ds_IcD)
+            station = self.to_wet_model_station(ds_IsD)
         return station
     
-    def to_boundary_model_station(self, ds_IcD):
-        return BoundaryModelStation(self, ds_IcD)
+    def to_boundary_model_station(self, ds_IsD):
+        """Converts the target station to a dry model station regardless of boundary
 
-    def to_wet_model_station(self, ds_IcD):
-        return WetModelStation(self, ds_IcD)
+        Parameters
+        ----------
+        ds_IsD : xarray.Dataset
+            A dataset contining the model grid information, having been
+            operated on by iconspy.convert_tgrid_data()
+
+        Returns
+        -------
+        iconspy.BoundaryModelStation
+            A model station object representing the closest dry model grid point
+            to the target station
+        """
+        return BoundaryModelStation(self, ds_IsD)
+
+
+    def to_wet_model_station(self, ds_IsD):
+        """Converts the target station to a wet model station regardless of boundary
+
+        Parameters
+        ----------
+        ds_IsD : xarray.Dataset
+            A dataset contining the model grid information, having been
+            operated on by iconspy.convert_tgrid_data()
+
+        Returns
+        -------
+        iconspy.WetModelStation
+            A model station object representing the closest wet model grid point
+            to the target station
+        """
+        return WetModelStation(self, ds_IsD)
 
     def plot(self, ax=None, proj=None, extent=None,
              coastlines=True, gridlines=True,
             ):
+        """plot the target station on a map
 
+        Parameters
+        ----------
+        ax : matplotlib.axes, optional
+            axis to plot on, by default None
+        proj : ccrs.Projection, optional
+            projection of map to be plotted, by default None
+        extent : arraylike, optional
+            extent of plot, by default None
+        coastlines : bool, optional
+            whether to overlay coastlines, by default True
+        gridlines : bool, optional
+            whether to overlay lines of latitude and longitude, by default True
+        """
         fig, ax = setup_figure_area(ax=ax, proj=proj, extent=extent, coastlines=coastlines, gridlines=gridlines)
 
         ax.plot(
@@ -67,6 +154,26 @@ class TargetStation:
 
 
 class ModelStation:
+    """Represents a station on the model grid
+    
+    Normally created using iconspy.TargetStation.to_model_station()
+    
+    Parameters
+    ----------
+    target_station : iconspy.TargetStation
+        The target station object that this model station is based on
+    
+    Attributes
+    ---------- 
+    name : str
+        Name of the target station
+    vertex : int
+        The vertex number of the model grid point
+    model_lon : float
+        Longitude of the model grid point
+    model_lat : float
+        Latitude of the model grid point
+    """
     def __init__(self, target_station):
         self.target_station = target_station
         self.name = target_station.name
@@ -93,38 +200,38 @@ class ModelStation:
 
 
 class WetModelStation(ModelStation):
-    def __init__(self, target_station, ds_IcD):
+    def __init__(self, target_station, ds_IsD):
         if target_station.boundary == True:
             raise ValueError("target station indicates the model station should be on a boundary")
         super().__init__(target_station)
 
         self.vertex = int(find_wet_vertex(
-            ds_IcD,
+            ds_IsD,
             lon=self.target_station.target_lon,
             lat=self.target_station.target_lat,
         ).values[0])
         
-        self.model_lon = float(ds_IcD["vlon"].sel(vertex=self.vertex).values)
-        self.model_lat = float(ds_IcD["vlat"].sel(vertex=self.vertex).values)
+        self.model_lon = float(ds_IsD["vlon"].sel(vertex=self.vertex).values)
+        self.model_lat = float(ds_IsD["vlat"].sel(vertex=self.vertex).values)
 
 class BoundaryModelStation(ModelStation):
-    def __init__(self, target_station, ds_IcD):
+    def __init__(self, target_station, ds_IsD):
         if target_station.boundary == False:
             raise ValueError("target station indicates the model station should be wet")
         super().__init__(target_station)
 
         self.vertex = int(find_boundary_vertex(
-            ds_IcD,
+            ds_IsD,
             lon=self.target_station.target_lon,
             lat=self.target_station.target_lat,
         ).values[0])
     
-        self.model_lon = float(ds_IcD["vlon"].sel(vertex=self.vertex).values)
-        self.model_lat = float(ds_IcD["vlat"].sel(vertex=self.vertex).values)
+        self.model_lon = float(ds_IsD["vlon"].sel(vertex=self.vertex).values)
+        self.model_lat = float(ds_IsD["vlat"].sel(vertex=self.vertex).values)
 
 
 class Section:
-    def __init__(self, name, model_station_a, model_station_b, ds_IcD,
+    def __init__(self, name, model_station_a, model_station_b, ds_IsD,
                  section_type=None, contour_target=None, contour_data=None):
         self.name = _Name(name)
         self.station_a = model_station_a
@@ -134,20 +241,20 @@ class Section:
         self.edge_path = None
         self.edge_orientation = None
 
-        vertex_graph = self.compute_vertex_graph(ds_IcD, contour_target, contour_data)
+        vertex_graph = self.compute_vertex_graph(ds_IsD, contour_target, contour_data)
 
         vertex_path_np = find_vertex_path(vertex_graph, self.station_a.vertex, self.station_b.vertex)
-        self.vertex_path = ds_IcD["vertex"].sel(vertex=vertex_path_np).rename({"vertex": "step_in_path_v"})
+        self.vertex_path = ds_IsD["vertex"].sel(vertex=vertex_path_np).rename({"vertex": "step_in_path_v"})
         
-        self.vlon = ds_IcD["vlon"].sel(vertex=self.vertex_path)
-        self.vlat = ds_IcD["vlat"].sel(vertex=self.vertex_path)
+        self.vlon = ds_IsD["vlon"].sel(vertex=self.vertex_path)
+        self.vlat = ds_IsD["vlat"].sel(vertex=self.vertex_path)
 
-        self.edge_path = vertex_path_to_edge_path(ds_IcD, self.vertex_path)
+        self.edge_path = vertex_path_to_edge_path(ds_IsD, self.vertex_path)
 
     def __repr__(self):
         return f"Section({self.name}, {self.station_a.name}, {self.station_b.name}, {self.section_type})"
 
-    def to_pyint_section(self, fpath, dryrun=False):
+    def to_ispy_section(self, fpath, dryrun=False):
         print(f"Output will be saved to {fpath}")
         ds_path = xr.Dataset()
         ds_path["edge_path"] = self.edge_path
@@ -180,28 +287,28 @@ class Section:
             label=self.name,
         )
     
-    def compute_vertex_graph(self, ds_IcD, contour_target=None, contour_data=None):
+    def compute_vertex_graph(self, ds_IsD, contour_target=None, contour_data=None):
         if self.section_type == "shortest":
-            weights = ds_IcD["edge_length"]
+            weights = ds_IsD["edge_length"]
         elif self.section_type == "isolat":
             raise NotImplementedError("section type requested is not implemented")
         elif self.section_type == "isolon":
             raise NotImplementedError("section type requested is not implemented")
         elif self.section_type == "great circle":
-            weights = self.great_circle_weights(ds_IcD)
+            weights = self.great_circle_weights(ds_IsD)
         elif self.section_type == "lat lon straight line":
-            weights = self.lat_lon_as_cartesian_weights(ds_IcD)
+            weights = self.lat_lon_as_cartesian_weights(ds_IsD)
         elif self.section_type == "contour":
-            weights = self.contour_weights(ds_IcD, contour_target, contour_data)
+            weights = self.contour_weights(ds_IsD, contour_target, contour_data)
         else:
             raise NotImplementedError("section type requested is not implemented")
 
-        vertex_graph = create_connectivity_matrix(ds_IcD, weights)
+        vertex_graph = create_connectivity_matrix(ds_IsD, weights)
 
         return vertex_graph
     
 
-    def contour_weights(self, ds_IcD, contour_target, contour_data):
+    def contour_weights(self, ds_IsD, contour_target, contour_data):
         weights = abs(contour_data - contour_target)
         return weights
     
@@ -215,18 +322,18 @@ class Section:
             reversed_self.edge_orientation = self.edge_orientation[::-1]
         return reversed_self
     
-    def great_circle_weights(self, ds_IcD, angular_distance=True):
-        station_a_cart = ds_IcD["vert_cart_vec"].sel(vertex=self.station_a.vertex)
-        station_b_cart = ds_IcD["vert_cart_vec"].sel(vertex=self.station_b.vertex)
+    def great_circle_weights(self, ds_IsD, angular_distance=True):
+        station_a_cart = ds_IsD["vert_cart_vec"].sel(vertex=self.station_a.vertex)
+        station_b_cart = ds_IsD["vert_cart_vec"].sel(vertex=self.station_b.vertex)
         
         great_circle_normal = np.cross(station_a_cart, station_b_cart)
-        great_circle_normal_for_edges = np.cross(ds_IcD["edge_cart_vec"], great_circle_normal)
-        closest_great_circle_point = np.cross(great_circle_normal, great_circle_normal_for_edges) * xr.ones_like(ds_IcD["edge_cart_vec"])
+        great_circle_normal_for_edges = np.cross(ds_IsD["edge_cart_vec"], great_circle_normal)
+        closest_great_circle_point = np.cross(great_circle_normal, great_circle_normal_for_edges) * xr.ones_like(ds_IsD["edge_cart_vec"])
         
-        edge_great_circle_vec = closest_great_circle_point - ds_IcD["edge_cart_vec"]
+        edge_great_circle_vec = closest_great_circle_point - ds_IsD["edge_cart_vec"]
 
         if angular_distance:
-            adotb = xr.dot(closest_great_circle_point, ds_IcD["edge_cart_vec"], dim="cart")
+            adotb = xr.dot(closest_great_circle_point, ds_IsD["edge_cart_vec"], dim="cart")
             moda = xr.apply_ufunc(
                 np.linalg.norm,
                 closest_great_circle_point,
@@ -236,7 +343,7 @@ class Section:
                 
             modb = xr.apply_ufunc(
                 np.linalg.norm,
-                ds_IcD["edge_cart_vec"],
+                ds_IsD["edge_cart_vec"],
                 input_core_dims=[["cart"]],
                 kwargs={"axis": 1}
             )
@@ -256,15 +363,15 @@ class Section:
         return weights
 
 
-    def lat_lon_as_cartesian_weights(self, ds_IcD):
-        x1 = ds_IcD["vlon"].sel(vertex=self.station_a.vertex).squeeze()
-        x2 = ds_IcD["vlon"].sel(vertex=self.station_b.vertex).squeeze()
+    def lat_lon_as_cartesian_weights(self, ds_IsD):
+        x1 = ds_IsD["vlon"].sel(vertex=self.station_a.vertex).squeeze()
+        x2 = ds_IsD["vlon"].sel(vertex=self.station_b.vertex).squeeze()
         
-        y1 = ds_IcD["vlat"].sel(vertex=self.station_a.vertex).squeeze()
-        y2 = ds_IcD["vlat"].sel(vertex=self.station_b.vertex).squeeze()
+        y1 = ds_IsD["vlat"].sel(vertex=self.station_a.vertex).squeeze()
+        y2 = ds_IsD["vlat"].sel(vertex=self.station_b.vertex).squeeze()
         
-        x0s = ds_IcD["elon"]
-        y0s = ds_IcD["elat"]
+        x0s = ds_IsD["elon"]
+        y0s = ds_IsD["elat"]
         
         numerator = np.abs((y2 - y1) * x0s - (x2 - x1) * y0s + x2 * y1 - y2 * x1)
         denominator = np.sqrt(np.square(y2 - y1) + np.square(x2 - x1))
@@ -276,16 +383,16 @@ class LandSection(Section):
     def __repr__(self):
         return f"LandSection({self.name}, {self.station_a.name}, {self.station_b.name}, {self.section_type})"
     
-    def compute_vertex_graph(self, ds_IcD, contour_target=None, contour_data=None):
+    def compute_vertex_graph(self, ds_IsD, contour_target=None, contour_data=None):
         if self.section_type != "shortest":
             raise ValueError(f"LandSection should have section type of 'shortest', not {self.section_type}")
 
-        vertex_graph = create_boundary_connectivity_matrix(ds_IcD, weight_type="distance")
+        vertex_graph = create_boundary_connectivity_matrix(ds_IsD, weight_type="distance")
 
         return vertex_graph
 
 class _ReconstructedSection(Section):
-    def __init__(self, section, vertex_path, edge_path, edge_orientation, ds_IcD):
+    def __init__(self, section, vertex_path, edge_path, edge_orientation, ds_IsD):
         self.name = section.name
         self.station_a = section.station_a
         self.station_b = section.station_b
@@ -293,15 +400,15 @@ class _ReconstructedSection(Section):
         self.vertex_path = vertex_path
         self.edge_path = edge_path
         self.edge_orientation = edge_orientation
-        self.vlon = ds_IcD["vlon"].sel(vertex=self.vertex_path)
-        self.vlat = ds_IcD["vlat"].sel(vertex=self.vertex_path)
+        self.vlon = ds_IsD["vlon"].sel(vertex=self.vertex_path)
+        self.vlat = ds_IsD["vlat"].sel(vertex=self.vertex_path)
 
     def __repr__(self):
         return f"ReconstructedSection({self.name}, {self.station_a.name}, {self.station_b.name}, {self.section_type})"
 
 
 class CombinedSection(Section):
-    def __init__(self, name, section_list, ds_IcD):
+    def __init__(self, name, section_list, ds_IsD):
         # Want to be able to combine two section into one.
 
         # Check the sections connect...
@@ -319,13 +426,13 @@ class CombinedSection(Section):
         self.vertex_path = xr.concat([section_list[0].vertex_path.isel(step_in_path_v=slice(0, -1)), section_list[1].vertex_path], dim="step_in_path_v")
         self.edge_path = xr.concat([section_list[0].edge_path, section_list[1].edge_path], dim="step_in_path")
         self.edge_orientation = None  # We can't be sure that the two sections have the same sign convention
-        self.vlon = ds_IcD["vlon"].sel(vertex=self.vertex_path)
-        self.vlat = ds_IcD["vlat"].sel(vertex=self.vertex_path)   
+        self.vlon = ds_IsD["vlon"].sel(vertex=self.vertex_path)
+        self.vlat = ds_IsD["vlat"].sel(vertex=self.vertex_path)   
 
 
 
 class Region:
-    def __init__(self, name, section_list, ds_IcD, test=False, manual_order=False):
+    def __init__(self, name, section_list, ds_IsD, test=False, manual_order=False):
         self.name = _Name(name)
         self.section_list = None
         
@@ -339,11 +446,11 @@ class Region:
             self.section_list = section_list
 
         # Get the vertex, edge and orientation xr.DataArrays
-        self.vertex_circuit = self.calculate_vertex_circuit(ds_IcD)
+        self.vertex_circuit = self.calculate_vertex_circuit(ds_IsD)
         if not test:
-            self.edge_circuit = vertex_path_to_edge_path(ds_IcD, self.vertex_circuit)
-            self.path_orientation = orientation_along_path(ds_IcD, self.vertex_circuit, self.edge_circuit)
-            self.contained_cells = self.calculate_contained_cells(ds_IcD)
+            self.edge_circuit = vertex_path_to_edge_path(ds_IsD, self.vertex_circuit)
+            self.path_orientation = orientation_along_path(ds_IsD, self.vertex_circuit, self.edge_circuit)
+            self.contained_cells = self.calculate_contained_cells(ds_IsD)
 
     def __repr__(self):
         return f"Region({self.name}, {self.section_list})"
@@ -352,7 +459,7 @@ class Region:
         raise NotImplementedError("Method not yet implemented")
 
 
-    def to_pyint_section(self, fpath, dryrun=False):
+    def to_ispy_section(self, fpath, dryrun=False):
         print(f"Output will be saved to {fpath}")
             
         ds_path = xr.Dataset()
@@ -374,15 +481,15 @@ class Region:
         return ds_path
 
         
-    def calculate_contained_cells(self, ds_IcD):
+    def calculate_contained_cells(self, ds_IsD):
         ring_coords = xr.concat(
             (self.vertex_circuit["vlon"], self.vertex_circuit["vlat"]), dim="cart"
         ).transpose(..., "cart")
         
         enclosed_area = shapely.polygons(ring_coords)
-        cell_points = shapely.points(ds_IcD["clon"], ds_IcD["clat"])
+        cell_points = shapely.points(ds_IsD["clon"], ds_IsD["clat"])
         cell_idxs, = np.where(enclosed_area.contains(cell_points))
-        contained_cells = ds_IcD["cell"].isel(cell=cell_idxs)
+        contained_cells = ds_IsD["cell"].isel(cell=cell_idxs)
         return contained_cells
     
 
@@ -406,7 +513,7 @@ class Region:
             label=self.name
         )
     
-    def calculate_vertex_circuit(self, ds_IcD):
+    def calculate_vertex_circuit(self, ds_IsD):
         # Create the vertex circuit by combining the sections
         vertex_circuit = np.hstack([section.vertex_path for section in self.section_list])
         
@@ -428,7 +535,7 @@ class Region:
         vertex_circuit = np.append(vertex_circuit, vertex_circuit[0])
 
         # Convert to xarray objects
-        vertex_path_xr = ds_IcD["vertex"].sel(vertex=vertex_circuit)
+        vertex_path_xr = ds_IsD["vertex"].sel(vertex=vertex_circuit)
         vertex_path_xr = vertex_path_xr.assign_coords(step_in_path=("vertex", np.arange(vertex_circuit.size))).swap_dims(vertex="step_in_path_v")
         
         return vertex_path_xr
@@ -507,7 +614,7 @@ class Region:
                 
         return section_order
 
-    def extract_sections_from_region(self, ds_IcD):
+    def extract_sections_from_region(self, ds_IsD):
         reconstructed_section_dict = OrderedDict()
         for section in self.section_list:
             amended_vertex_path = self.vertex_circuit.isel(
@@ -524,6 +631,6 @@ class Region:
             )
     
             reconstructed_section_dict[str(section.name)] = (
-                _ReconstructedSection(section, amended_vertex_path, amended_edge_path, amended_edge_orientation, ds_IcD)
+                _ReconstructedSection(section, amended_vertex_path, amended_edge_path, amended_edge_orientation, ds_IsD)
             )
         return reconstructed_section_dict
