@@ -25,9 +25,8 @@ jobs:
           channels: conda-forge,nodefaults
           activate-environment: ispy_py311
           environment-file: environment.yml
+          conda-remove-defaults: true
           auto-activate-base: false
-          run: |
-            echo "conda activate ispy_py311" >> $GITHUB_ENV
 
       - name: Build documentation
         run: |
