@@ -22,14 +22,12 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           mamba-version: '*'
-          channels: conda-forge
+          channels: conda-forge,nodefaults
           activate-environment: ispy_py311
+          environment-file: environment.yml
           auto-activate-base: false
-
-      - name: Install dependencies with Mamba
-        run: |
-          mamba create --file environment.yml
-          echo "conda activate ispy_py311" >> $GITHUB_ENV
+          run: |
+            echo "conda activate ispy_py311" >> $GITHUB_ENV
 
       - name: Build documentation
         run: |
