@@ -56,6 +56,10 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#target-station">Target station</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#iconspy.TargetStation"><code class="docutils literal notranslate"><span class="pre">TargetStation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#iconspy.TargetStation.name"><code class="docutils literal notranslate"><span class="pre">TargetStation.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#iconspy.TargetStation.target_lon"><code class="docutils literal notranslate"><span class="pre">TargetStation.target_lon</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#iconspy.TargetStation.target_lat"><code class="docutils literal notranslate"><span class="pre">TargetStation.target_lat</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#iconspy.TargetStation.boundary"><code class="docutils literal notranslate"><span class="pre">TargetStation.boundary</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#iconspy.TargetStation.plot"><code class="docutils literal notranslate"><span class="pre">TargetStation.plot()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#iconspy.TargetStation.to_boundary_model_station"><code class="docutils literal notranslate"><span class="pre">TargetStation.to_boundary_model_station()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#iconspy.TargetStation.to_model_station"><code class="docutils literal notranslate"><span class="pre">TargetStation.to_model_station()</span></code></a></li>
@@ -66,6 +70,10 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#model-stations">Model stations</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#iconspy.ModelStation"><code class="docutils literal notranslate"><span class="pre">ModelStation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#iconspy.ModelStation.name"><code class="docutils literal notranslate"><span class="pre">ModelStation.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#iconspy.ModelStation.vertex"><code class="docutils literal notranslate"><span class="pre">ModelStation.vertex</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#iconspy.ModelStation.model_lon"><code class="docutils literal notranslate"><span class="pre">ModelStation.model_lon</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#iconspy.ModelStation.model_lat"><code class="docutils literal notranslate"><span class="pre">ModelStation.model_lat</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#iconspy.ModelStation.plot"><code class="docutils literal notranslate"><span class="pre">ModelStation.plot()</span></code></a></li>
 </ul>
 </li>
@@ -81,7 +89,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#iconspy.Section.lat_lon_as_cartesian_weights"><code class="docutils literal notranslate"><span class="pre">Section.lat_lon_as_cartesian_weights()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#iconspy.Section.plot"><code class="docutils literal notranslate"><span class="pre">Section.plot()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#iconspy.Section.reverse_section"><code class="docutils literal notranslate"><span class="pre">Section.reverse_section()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#iconspy.Section.to_pyint_section"><code class="docutils literal notranslate"><span class="pre">Section.to_pyint_section()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#iconspy.Section.to_ispy_section"><code class="docutils literal notranslate"><span class="pre">Section.to_ispy_section()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#iconspy.LandSection"><code class="docutils literal notranslate"><span class="pre">LandSection</span></code></a><ul>
@@ -99,8 +107,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#iconspy.Region.extract_sections_from_region"><code class="docutils literal notranslate"><span class="pre">Region.extract_sections_from_region()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#iconspy.Region.order_sections"><code class="docutils literal notranslate"><span class="pre">Region.order_sections()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#iconspy.Region.plot"><code class="docutils literal notranslate"><span class="pre">Region.plot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#iconspy.Region.to_ispy_section"><code class="docutils literal notranslate"><span class="pre">Region.to_ispy_section()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#iconspy.Region.to_pyicon_section"><code class="docutils literal notranslate"><span class="pre">Region.to_pyicon_section()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#iconspy.Region.to_pyint_section"><code class="docutils literal notranslate"><span class="pre">Region.to_pyint_section()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -140,7 +148,35 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="iconspy.convert_tgrid_data">
 <span class="sig-prename descclassname"><span class="pre">iconspy.</span></span><span class="sig-name descname"><span class="pre">convert_tgrid_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_tgrid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pyic_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.convert_tgrid_data" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Formats the model grid in the format required by iconspy</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ds_tgrid</strong> (<em>xarray.Dataset</em>) – Dataset represention of the raw model grid (e.g. downloaded from “<a class="reference external" href="http://icon-downloads.mpimet.mpg.de">http://icon-downloads.mpimet.mpg.de</a>”)</p></li>
+<li><p><strong>pyic_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dictionary containig arguments to be passed to the pyicon.convert_tgrid_data function, by default None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ds_IsD</strong> – Dataset represention of the model grid in the format required by iconspy</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>xarray.Dataset</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>An iconspy dataset (ds_IsD) is similar to but distinct from a pyicon dataset (ds_IcD).
+I suggest loading the dataset having loaded it</p>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">iconspy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ispy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tgrid_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/pool/data/ICON/grids/public/mpim/0036/icon_grid_0036_R02B04_O.nc&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds_tgrid</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">tgrid_path</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds_IsD</span> <span class="o">=</span> <span class="n">convert_tgrid_data</span><span class="p">(</span><span class="n">ds_tgrid</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds_IsD</span> <span class="o">=</span> <span class="n">ds_IsD</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
 
 </section>
 <section id="target-station">
@@ -148,25 +184,140 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="iconspy.TargetStation">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">iconspy.</span></span><span class="sig-name descname"><span class="pre">TargetStation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.TargetStation" title="Link to this definition"></a></dt>
-<dd><dl class="py method">
+<dd><p>Represents a target station</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of the target station</p></li>
+<li><p><strong>lon</strong> (<em>float</em>) – Longitude of the target station</p></li>
+<li><p><strong>lat</strong> (<em>float</em>) – Latitude of the target station</p></li>
+<li><p><strong>boundary</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether the station should be sited on a boundary point or not, by default True</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="iconspy.TargetStation.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#iconspy.TargetStation.name" title="Link to this definition"></a></dt>
+<dd><p>Name of the target station</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="iconspy.TargetStation.target_lon">
+<span class="sig-name descname"><span class="pre">target_lon</span></span><a class="headerlink" href="#iconspy.TargetStation.target_lon" title="Link to this definition"></a></dt>
+<dd><p>Longitude of the target station</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="iconspy.TargetStation.target_lat">
+<span class="sig-name descname"><span class="pre">target_lat</span></span><a class="headerlink" href="#iconspy.TargetStation.target_lat" title="Link to this definition"></a></dt>
+<dd><p>Latitude of the target station</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="iconspy.TargetStation.boundary">
+<span class="sig-name descname"><span class="pre">boundary</span></span><a class="headerlink" href="#iconspy.TargetStation.boundary" title="Link to this definition"></a></dt>
+<dd><p>Whether the station should be sited on a boundary point or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">iconspy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ispy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target_station</span> <span class="o">=</span> <span class="n">ispy</span><span class="o">.</span><span class="n">TargetStation</span><span class="p">(</span><span class="s2">&quot;My Station&quot;</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target_station</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="py method">
 <dt class="sig sig-object py" id="iconspy.TargetStation.plot">
 <span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coastlines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gridlines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.TargetStation.plot" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>plot the target station on a map</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>matplotlib.axes</em><em>, </em><em>optional</em>) – axis to plot on, by default None</p></li>
+<li><p><strong>proj</strong> (<em>ccrs.Projection</em><em>, </em><em>optional</em>) – projection of map to be plotted, by default None</p></li>
+<li><p><strong>extent</strong> (<em>arraylike</em><em>, </em><em>optional</em>) – extent of plot, by default None</p></li>
+<li><p><strong>coastlines</strong> (<em>bool</em><em>, </em><em>optional</em>) – whether to overlay coastlines, by default True</p></li>
+<li><p><strong>gridlines</strong> (<em>bool</em><em>, </em><em>optional</em>) – whether to overlay lines of latitude and longitude, by default True</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="iconspy.TargetStation.to_boundary_model_station">
-<span class="sig-name descname"><span class="pre">to_boundary_model_station</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_IcD</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.TargetStation.to_boundary_model_station" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">to_boundary_model_station</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_IsD</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.TargetStation.to_boundary_model_station" title="Link to this definition"></a></dt>
+<dd><p>Converts the target station to a dry model station regardless of boundary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ds_IsD</strong> (<em>xarray.Dataset</em>) – A dataset contining the model grid information, having been
+operated on by iconspy.convert_tgrid_data()</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A model station object representing the closest dry model grid point
+to the target station</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#iconspy.BoundaryModelStation" title="iconspy.BoundaryModelStation">iconspy.BoundaryModelStation</a></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="iconspy.TargetStation.to_model_station">
-<span class="sig-name descname"><span class="pre">to_model_station</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_IcD</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.TargetStation.to_model_station" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">to_model_station</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_IsD</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.TargetStation.to_model_station" title="Link to this definition"></a></dt>
+<dd><p>Converts the target station to a model station</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ds_IsD</strong> (<em>xarray.Dataset</em>) – A dataset contining the model grid information, having been
+operated on by iconspy.convert_tgrid_data()</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A model station object representing the closest model grid point
+to the target station</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#iconspy.ModelStation" title="iconspy.ModelStation">iconspy.ModelStation</a></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="iconspy.TargetStation.to_wet_model_station">
-<span class="sig-name descname"><span class="pre">to_wet_model_station</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_IcD</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.TargetStation.to_wet_model_station" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">to_wet_model_station</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_IsD</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.TargetStation.to_wet_model_station" title="Link to this definition"></a></dt>
+<dd><p>Converts the target station to a wet model station regardless of boundary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ds_IsD</strong> (<em>xarray.Dataset</em>) – A dataset contining the model grid information, having been
+operated on by iconspy.convert_tgrid_data()</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A model station object representing the closest wet model grid point
+to the target station</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#iconspy.WetModelStation" title="iconspy.WetModelStation">iconspy.WetModelStation</a></p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -176,7 +327,58 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="iconspy.ModelStation">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">iconspy.</span></span><span class="sig-name descname"><span class="pre">ModelStation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_station</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.ModelStation" title="Link to this definition"></a></dt>
-<dd><dl class="py method">
+<dd><p>Represents a station on the model grid</p>
+<p>Normally created using iconspy.TargetStation.to_model_station()</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>target_station</strong> (<a class="reference internal" href="#iconspy.TargetStation" title="iconspy.TargetStation"><em>iconspy.TargetStation</em></a>) – The target station object that this model station is based on</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="iconspy.ModelStation.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#iconspy.ModelStation.name" title="Link to this definition"></a></dt>
+<dd><p>Name of the target station</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="iconspy.ModelStation.vertex">
+<span class="sig-name descname"><span class="pre">vertex</span></span><a class="headerlink" href="#iconspy.ModelStation.vertex" title="Link to this definition"></a></dt>
+<dd><p>The vertex number of the model grid point</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="iconspy.ModelStation.model_lon">
+<span class="sig-name descname"><span class="pre">model_lon</span></span><a class="headerlink" href="#iconspy.ModelStation.model_lon" title="Link to this definition"></a></dt>
+<dd><p>Longitude of the model grid point</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="iconspy.ModelStation.model_lat">
+<span class="sig-name descname"><span class="pre">model_lat</span></span><a class="headerlink" href="#iconspy.ModelStation.model_lat" title="Link to this definition"></a></dt>
+<dd><p>Latitude of the model grid point</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="iconspy.ModelStation.plot">
 <span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coastlines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gridlines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.ModelStation.plot" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -185,13 +387,13 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="iconspy.WetModelStation">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">iconspy.</span></span><span class="sig-name descname"><span class="pre">WetModelStation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_station</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_IcD</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.WetModelStation" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">iconspy.</span></span><span class="sig-name descname"><span class="pre">WetModelStation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_station</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_IsD</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.WetModelStation" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#iconspy.ModelStation" title="iconspy.core.ModelStation"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelStation</span></code></a></p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="iconspy.BoundaryModelStation">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">iconspy.</span></span><span class="sig-name descname"><span class="pre">BoundaryModelStation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_station</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_IcD</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.BoundaryModelStation" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">iconspy.</span></span><span class="sig-name descname"><span class="pre">BoundaryModelStation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_station</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_IsD</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.BoundaryModelStation" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#iconspy.ModelStation" title="iconspy.core.ModelStation"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelStation</span></code></a></p>
 </dd></dl>
 
@@ -200,25 +402,25 @@
 <h2>Sections<a class="headerlink" href="#sections" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="iconspy.Section">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">iconspy.</span></span><span class="sig-name descname"><span class="pre">Section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_station_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_station_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_IcD</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Section" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">iconspy.</span></span><span class="sig-name descname"><span class="pre">Section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_station_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_station_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_IsD</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Section" title="Link to this definition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="iconspy.Section.compute_vertex_graph">
-<span class="sig-name descname"><span class="pre">compute_vertex_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_IcD</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Section.compute_vertex_graph" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">compute_vertex_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_IsD</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Section.compute_vertex_graph" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="iconspy.Section.contour_weights">
-<span class="sig-name descname"><span class="pre">contour_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_IcD</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Section.contour_weights" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">contour_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_IsD</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Section.contour_weights" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="iconspy.Section.great_circle_weights">
-<span class="sig-name descname"><span class="pre">great_circle_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_IcD</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angular_distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Section.great_circle_weights" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">great_circle_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_IsD</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angular_distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Section.great_circle_weights" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="iconspy.Section.lat_lon_as_cartesian_weights">
-<span class="sig-name descname"><span class="pre">lat_lon_as_cartesian_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_IcD</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Section.lat_lon_as_cartesian_weights" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">lat_lon_as_cartesian_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_IsD</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Section.lat_lon_as_cartesian_weights" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -232,26 +434,26 @@
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="iconspy.Section.to_pyint_section">
-<span class="sig-name descname"><span class="pre">to_pyint_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fpath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dryrun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Section.to_pyint_section" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="iconspy.Section.to_ispy_section">
+<span class="sig-name descname"><span class="pre">to_ispy_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fpath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dryrun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Section.to_ispy_section" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="iconspy.LandSection">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">iconspy.</span></span><span class="sig-name descname"><span class="pre">LandSection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_station_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_station_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_IcD</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.LandSection" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">iconspy.</span></span><span class="sig-name descname"><span class="pre">LandSection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_station_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_station_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_IsD</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.LandSection" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#iconspy.Section" title="iconspy.core.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">Section</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="iconspy.LandSection.compute_vertex_graph">
-<span class="sig-name descname"><span class="pre">compute_vertex_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_IcD</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.LandSection.compute_vertex_graph" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">compute_vertex_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_IsD</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.LandSection.compute_vertex_graph" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="iconspy.CombinedSection">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">iconspy.</span></span><span class="sig-name descname"><span class="pre">CombinedSection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_IcD</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.CombinedSection" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">iconspy.</span></span><span class="sig-name descname"><span class="pre">CombinedSection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_IsD</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.CombinedSection" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#iconspy.Section" title="iconspy.core.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">Section</span></code></a></p>
 </dd></dl>
 
@@ -260,10 +462,10 @@
 <h2>Region<a class="headerlink" href="#region" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="iconspy.Region">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">iconspy.</span></span><span class="sig-name descname"><span class="pre">Region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_IcD</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manual_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Region" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">iconspy.</span></span><span class="sig-name descname"><span class="pre">Region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_IsD</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manual_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Region" title="Link to this definition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="iconspy.Region.calculate_contained_cells">
-<span class="sig-name descname"><span class="pre">calculate_contained_cells</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_IcD</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Region.calculate_contained_cells" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">calculate_contained_cells</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_IsD</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Region.calculate_contained_cells" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -278,12 +480,12 @@ Sorry.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="iconspy.Region.calculate_vertex_circuit">
-<span class="sig-name descname"><span class="pre">calculate_vertex_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_IcD</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Region.calculate_vertex_circuit" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">calculate_vertex_circuit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_IsD</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Region.calculate_vertex_circuit" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="iconspy.Region.extract_sections_from_region">
-<span class="sig-name descname"><span class="pre">extract_sections_from_region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_IcD</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Region.extract_sections_from_region" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">extract_sections_from_region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_IsD</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Region.extract_sections_from_region" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -297,13 +499,13 @@ Sorry.</p>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="iconspy.Region.to_pyicon_section">
-<span class="sig-name descname"><span class="pre">to_pyicon_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Region.to_pyicon_section" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="iconspy.Region.to_ispy_section">
+<span class="sig-name descname"><span class="pre">to_ispy_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fpath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dryrun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Region.to_ispy_section" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="iconspy.Region.to_pyint_section">
-<span class="sig-name descname"><span class="pre">to_pyint_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fpath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dryrun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Region.to_pyint_section" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="iconspy.Region.to_pyicon_section">
+<span class="sig-name descname"><span class="pre">to_pyicon_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Region.to_pyicon_section" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
