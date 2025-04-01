@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "iconspy"
+version = "0.1.0"
+description = "ICON Sections in PYthon"
+authors = [
+    { name = "Fraser William Goldsworth", email = "frasergocean@gmail.com" }
+]
+readme = "README.md"
+license = { text = "BSD-3-Clause" }
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD-3-Clause",
+    "Operating System :: OS Independent"
+]
+
+[project.optional-dependencies]
+dev = []  # Add development dependencies here
+
+[tool.setuptools.packages.find]
+include = ["iconspy"]
