@@ -22,7 +22,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           mamba-version: '*'
-          channels: conda-forge,nodefaults
+          channels: conda-forge
           activate-environment: ispy_py311
           environment-file: environment.yml
           conda-remove-defaults: "true"
