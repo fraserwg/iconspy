@@ -1,7 +1,7 @@
 Installation
 ============
 
-`iconspy` can be downloaded from github. To obtain the source code run the command:
+:code:`iconspy` can be downloaded from github. To obtain the source code run the command:
 
 .. code-block:: bash
 
