@@ -1,6 +1,7 @@
 name: ispy_py311
 channels:
   - conda-forge
+  - nodefaults
 dependencies:
   - python=3.11
   - numpy
