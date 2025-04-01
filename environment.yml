@@ -4,6 +4,8 @@ channels:
   - nodefaults
 dependencies:
   - python=3.11
+  - pip
+  - cmocean
   - numpy
   - xarray
   - cartopy
@@ -11,7 +13,6 @@ dependencies:
   - shapely
   - matplotlib
   - scipy
-  - pip
   # testing
   - pytest
   # documentation
@@ -26,7 +27,6 @@ dependencies:
   # pyicon requirements
   - netcdf4
   - pandas
-  - cmocean
   - ipywidgets
   - ipykernel
   - jupytext
@@ -47,4 +47,4 @@ dependencies:
   - dask-mpi
   - distributed
   - pip:
-    - git+https://gitlab.dkrz.de/m300602/pyicon.git
+    - pyicon-diagnostics @ git+https://gitlab.dkrz.de/m300602/pyicon.git

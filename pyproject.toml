@@ -11,6 +11,7 @@ authors = [
 ]
 dependencies = [
     # Core dependencies
+    "pip",
     "numpy",
     "xarray",
     "cartopy",
@@ -18,13 +19,12 @@ dependencies = [
     "shapely",
     "matplotlib",
     "scipy",
-    "pip",
+    "cmocean",
     "pyicon-diagnostics @ git+https://gitlab.dkrz.de/m300602/pyicon.git",
     
     # Pyicon dependencies
     "netcdf4",
     "pandas",
-    "cmocean",
     "ipywidgets",
     "ipykernel",
     "jupytext",
@@ -70,6 +70,7 @@ dev = [
     "bottleneck",
     "dask-mpi",
     "distributed",
+    "ipympl",
 ]
 
 [tool.setuptools.packages.find]
