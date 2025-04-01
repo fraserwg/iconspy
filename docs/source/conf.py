@@ -15,6 +15,7 @@ release = '0.1.0'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
+    'myst_parser',
     'sphinx.ext.autodoc',       # Extracts documentation from docstrings
     'sphinx.ext.napoleon',      # Supports Google- and NumPy-style docstrings
     'sphinx.ext.autosummary',   # Generates summary tables for modules/classes

@@ -22,6 +22,7 @@ dependencies:
   - pygments
   - nbsphinx
   - nbconvert
+  - myst-parser
   # pyicon requirements
   - netcdf4
   - pandas
