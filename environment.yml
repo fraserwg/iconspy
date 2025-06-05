@@ -46,5 +46,9 @@ dependencies:
   - bottleneck
   - dask-mpi
   - distributed
+  - requests
+  - aiohttp
+  - sparse
+  - h5netcdf
   - pip:
     - pyicon-diagnostics @ git+https://gitlab.dkrz.de/m300602/pyicon.git
