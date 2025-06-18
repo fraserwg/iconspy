@@ -272,8 +272,41 @@ class Section:
             ds_path.to_netcdf(fpath)
 
         return ds_path
-    
-    
+
+    def set_pyic_orientation_along_path(self, ds_IsD):
+        """Calculate the orientation of the edges along the path
+        
+        Add the edge orientation object to the section object using code from
+        pyicon.
+        
+        Parameters
+        ----------
+        self : iconspy.Section
+            The section you wish to calculate the edge orientation for
+
+        ds_IsD : xarray.Dataset
+            A dataset containing the model grid information, having been
+            operated on by iconspy.convert_tgrid_data()
+        
+        Notes
+        -----
+        Original code from pyicon under the MIT license.
+        Modified by Fraser Goldsworth on 18.06.2025.
+        See LICENSE file for more information.
+
+        """
+        ie_list = self.edge_path
+        iv_list = self.vertex_path
+        
+        or_list = np.zeros((ie_list.size))
+        for nn in range(ie_list.size):
+            iel = ds_IsD.edges_of_vertex[iv_list[nn],:]==ie_list[nn]
+            or_list[nn] = ds_IsD.edge_orientation[iv_list[nn], iel]
+            
+        orientation = xr.ones_like(self.edge_path) * or_list
+        
+        self.edge_orientation = orientation
+
     def plot(self, ax=None, proj=None, extent=None,
              coastlines=True, gridlines=True,
             ):

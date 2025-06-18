@@ -174,9 +174,10 @@ def create_connectivity_matrix(ds_IsD, weights=None):
     return vertex_graph
 
 
-def setup_figure_area(ax=None, proj=None, gridlines=True, coastlines=True, extent=[-85, 30, 55, 85]):
+def setup_figure_area(ax=None, proj=None, gridlines=True, coastlines=True, extent=None):
     if proj is None:
-        proj = lambert_greenland
+        # proj = lambert_greenland
+        proj = ccrs.PlateCarree()
     
     if ax is None:
         fig, ax = plt.subplots(
@@ -231,7 +232,7 @@ def convert_tgrid_data(ds_tgrid, pyic_kwargs=None):
 
     for point in ["cell", "edge", "vertex"]:
         if (point not in ds_IsD.coords) and (point in ds_IsD.dims):
-            ds_IsD[point] = np.arange(ds_IsD.dims[point], dtype="int32")
+            ds_IsD[point] = np.arange(ds_IsD.sizes[point], dtype="int32")
 
     ds_IsD = ds_IsD.load()
     ds_IsD["edge_vertices"] = ds_IsD["edge_vertices"].astype("int32")
