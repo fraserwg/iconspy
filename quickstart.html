@@ -93,12 +93,12 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from pathlib import Path
-import matplotlib.pyplot as plt
-import cartopy.crs as ccrs
-import xarray as xr
-import iconspy as ispy
-import cmocean.cm as cmo
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cartopy.crs</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ccrs</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">iconspy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ispy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cmocean.cm</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cmo</span>
 </pre></div>
 </div>
 </div>
@@ -110,24 +110,24 @@ import cmocean.cm as cmo
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>shared_data_path = Path(&quot;/pool/data/ICON/oes/input/r0006/&quot;)
-R02B04_path = shared_data_path / &quot;icon_grid_0036_R02B04_O&quot;
-grid_path = R02B04_path / &quot;R2B4_ocean-grid.nc&quot;
-fx_path = R02B04_path / &quot;R2B4L40_fx.nc&quot;
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">shared_data_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/pool/data/ICON/oes/input/r0006/&quot;</span><span class="p">)</span>
+<span class="n">R02B04_path</span> <span class="o">=</span> <span class="n">shared_data_path</span> <span class="o">/</span> <span class="s2">&quot;icon_grid_0036_R02B04_O&quot;</span>
+<span class="n">grid_path</span> <span class="o">=</span> <span class="n">R02B04_path</span> <span class="o">/</span> <span class="s2">&quot;R2B4_ocean-grid.nc&quot;</span>
+<span class="n">fx_path</span> <span class="o">=</span> <span class="n">R02B04_path</span> <span class="o">/</span> <span class="s2">&quot;R2B4L40_fx.nc&quot;</span>
 
-ds_tgrid = xr.open_dataset(grid_path)  # horizontal grid information
-ds_fx = xr.open_dataset(fx_path)  # Contains bathymetry etc.
+<span class="n">ds_tgrid</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">grid_path</span><span class="p">)</span>  <span class="c1"># horizontal grid information</span>
+<span class="n">ds_fx</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">fx_path</span><span class="p">)</span>  <span class="c1"># Contains bathymetry etc.</span>
 
-# Put datasets into the iconspy format
-ds_IsD = ispy.convert_tgrid_data(ds_tgrid)
+<span class="c1"># Put datasets into the iconspy format</span>
+<span class="n">ds_IsD</span> <span class="o">=</span> <span class="n">ispy</span><span class="o">.</span><span class="n">convert_tgrid_data</span><span class="p">(</span><span class="n">ds_tgrid</span><span class="p">)</span>
 
-ds_fx = ds_fx.rename(
-    {
-        &quot;ncells&quot;: &quot;cell&quot;,
-        &quot;ncells_2&quot;: &quot;edge&quot;,
-        &quot;ncells_3&quot;: &quot;vertex&quot;,
-    }
-)
+<span class="n">ds_fx</span> <span class="o">=</span> <span class="n">ds_fx</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;ncells&quot;</span><span class="p">:</span> <span class="s2">&quot;cell&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ncells_2&quot;</span><span class="p">:</span> <span class="s2">&quot;edge&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ncells_3&quot;</span><span class="p">:</span> <span class="s2">&quot;vertex&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
 <br/><br/></pre></div>
 </div>
 </div>
@@ -140,43 +140,43 @@ ds_fx = ds_fx.rename(
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def setup_plot_area(ds_IsD):
-    Slat, Nlat = -20, 20
-    Wlon, Elon = -60, 0
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">setup_plot_area</span><span class="p">(</span><span class="n">ds_IsD</span><span class="p">):</span>
+    <span class="n">Slat</span><span class="p">,</span> <span class="n">Nlat</span> <span class="o">=</span> <span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span>
+    <span class="n">Wlon</span><span class="p">,</span> <span class="n">Elon</span> <span class="o">=</span> <span class="o">-</span><span class="mi">60</span><span class="p">,</span> <span class="mi">0</span>
 
-    edges_in_region = ds_IsD[&quot;edge&quot;].where(
-        (ds_IsD[&quot;elon&quot;] &gt; Wlon) * (ds_IsD[&quot;elon&quot;] &lt; Elon) * (ds_IsD[&quot;elat&quot;] &gt; Slat) * (ds_IsD[&quot;elat&quot;] &lt; Nlat)
-        , drop=True).astype(&quot;int32&quot;)
+    <span class="n">edges_in_region</span> <span class="o">=</span> <span class="n">ds_IsD</span><span class="p">[</span><span class="s2">&quot;edge&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">ds_IsD</span><span class="p">[</span><span class="s2">&quot;elon&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">Wlon</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">ds_IsD</span><span class="p">[</span><span class="s2">&quot;elon&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">Elon</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">ds_IsD</span><span class="p">[</span><span class="s2">&quot;elat&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">Slat</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">ds_IsD</span><span class="p">[</span><span class="s2">&quot;elat&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">Nlat</span><span class="p">)</span>
+        <span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int32&quot;</span><span class="p">)</span>
 
 
-    lons = ds_IsD[&quot;vlon&quot;].sel(vertex=ds_IsD[&quot;edge_vertices&quot;])
-    lats = ds_IsD[&quot;vlat&quot;].sel(vertex=ds_IsD[&quot;edge_vertices&quot;])
+    <span class="n">lons</span> <span class="o">=</span> <span class="n">ds_IsD</span><span class="p">[</span><span class="s2">&quot;vlon&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">vertex</span><span class="o">=</span><span class="n">ds_IsD</span><span class="p">[</span><span class="s2">&quot;edge_vertices&quot;</span><span class="p">])</span>
+    <span class="n">lats</span> <span class="o">=</span> <span class="n">ds_IsD</span><span class="p">[</span><span class="s2">&quot;vlat&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">vertex</span><span class="o">=</span><span class="n">ds_IsD</span><span class="p">[</span><span class="s2">&quot;edge_vertices&quot;</span><span class="p">])</span>
 
-    fig, ax = plt.subplots(subplot_kw={&quot;projection&quot;: ccrs.PlateCarree()})
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;projection&quot;</span><span class="p">:</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()})</span>
 
-    for edge in edges_in_region:
-        ax.plot(
-            lons.isel(edge=edge),
-            lats.isel(edge=edge),
-            color=&quot;black&quot;,
-            alpha=0.2,
-        )
+    <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">edges_in_region</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">lons</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">edge</span><span class="o">=</span><span class="n">edge</span><span class="p">),</span>
+            <span class="n">lats</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">edge</span><span class="o">=</span><span class="n">edge</span><span class="p">),</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+        <span class="p">)</span>
 
-    ax.scatter(
-        ds_IsD[&quot;vlon&quot;],
-        ds_IsD[&quot;vlat&quot;],
-        s=4,
-        transform=ccrs.PlateCarree(),
-        color=&quot;tab:green&quot;
-    )
+    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+        <span class="n">ds_IsD</span><span class="p">[</span><span class="s2">&quot;vlon&quot;</span><span class="p">],</span>
+        <span class="n">ds_IsD</span><span class="p">[</span><span class="s2">&quot;vlat&quot;</span><span class="p">],</span>
+        <span class="n">s</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">transform</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(),</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:green&quot;</span>
+    <span class="p">)</span>
 
-    ax.set_xlim(Wlon, Elon)
-    ax.set_ylim(Slat, Nlat)
-    ax.set_aspect(&quot;equal&quot;)
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">Wlon</span><span class="p">,</span> <span class="n">Elon</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">Slat</span><span class="p">,</span> <span class="n">Nlat</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
 
-    ax.coastlines()
-    ax.grid(False)
-    return fig, ax
+    <span class="n">ax</span><span class="o">.</span><span class="n">coastlines</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span>
 </pre></div>
 </div>
 </div>
@@ -184,21 +184,21 @@ ds_fx = ds_fx.rename(
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Put in the approximate coordinates of the points we want
-# Specify that we want the George Town point to be on the boundary
-target_GeorgeTown = ispy.TargetStation(&quot;George Town&quot;, -59, 6, boundary=True)
-target_offshore = ispy.TargetStation(&quot;Offshore&quot;, -35, 15, boundary=False)
-target_Natal = ispy.TargetStation(&quot;Natal&quot;, -35, -5, boundary=True)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Put in the approximate coordinates of the points we want</span>
+<span class="c1"># Specify that we want the George Town point to be on the boundary</span>
+<span class="n">target_GeorgeTown</span> <span class="o">=</span> <span class="n">ispy</span><span class="o">.</span><span class="n">TargetStation</span><span class="p">(</span><span class="s2">&quot;George Town&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">59</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">target_offshore</span> <span class="o">=</span> <span class="n">ispy</span><span class="o">.</span><span class="n">TargetStation</span><span class="p">(</span><span class="s2">&quot;Offshore&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">35</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">target_Natal</span> <span class="o">=</span> <span class="n">ispy</span><span class="o">.</span><span class="n">TargetStation</span><span class="p">(</span><span class="s2">&quot;Natal&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">35</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-# Visualise the points
-fig, ax = setup_plot_area(ds_IsD)
-target_GeorgeTown.plot(ax=ax, gridlines=False)
-target_offshore.plot(ax=ax, gridlines=False)
-target_Natal.plot(ax=ax, gridlines=False)
-gl = ax.gridlines()
-gl.xlines, gl.ylines = False, False
-ax.grid(visible=False)
-ax.legend(loc=2)
+<span class="c1"># Visualise the points</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">setup_plot_area</span><span class="p">(</span><span class="n">ds_IsD</span><span class="p">)</span>
+<span class="n">target_GeorgeTown</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">gridlines</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">target_offshore</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">gridlines</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">target_Natal</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">gridlines</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">gl</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">gridlines</span><span class="p">()</span>
+<span class="n">gl</span><span class="o">.</span><span class="n">xlines</span><span class="p">,</span> <span class="n">gl</span><span class="o">.</span><span class="n">ylines</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">visible</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -223,24 +223,24 @@ ax.legend(loc=2)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Convert the target stations to model stations
-model_GeorgeTown = target_GeorgeTown.to_model_station(ds_IsD)
-model_offshore = target_offshore.to_model_station(ds_IsD)
-model_Natal = target_Natal.to_model_station(ds_IsD)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Convert the target stations to model stations</span>
+<span class="n">model_GeorgeTown</span> <span class="o">=</span> <span class="n">target_GeorgeTown</span><span class="o">.</span><span class="n">to_model_station</span><span class="p">(</span><span class="n">ds_IsD</span><span class="p">)</span>
+<span class="n">model_offshore</span> <span class="o">=</span> <span class="n">target_offshore</span><span class="o">.</span><span class="n">to_model_station</span><span class="p">(</span><span class="n">ds_IsD</span><span class="p">)</span>
+<span class="n">model_Natal</span> <span class="o">=</span> <span class="n">target_Natal</span><span class="o">.</span><span class="n">to_model_station</span><span class="p">(</span><span class="n">ds_IsD</span><span class="p">)</span>
 
-fig, ax = setup_plot_area(ds_IsD)
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">setup_plot_area</span><span class="p">(</span><span class="n">ds_IsD</span><span class="p">)</span>
 
-# Plot the model stations (circles)
-model_GeorgeTown.plot(ax=ax, gridlines=False)
-model_offshore.plot(ax=ax, gridlines=False)
-model_Natal.plot(ax=ax, gridlines=False)
+<span class="c1"># Plot the model stations (circles)</span>
+<span class="n">model_GeorgeTown</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">gridlines</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">model_offshore</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">gridlines</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">model_Natal</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">gridlines</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-# Compare with the target station (crosses)
-target_GeorgeTown.plot(ax=ax, gridlines=False)
-target_offshore.plot(ax=ax, gridlines=False)
-target_Natal.plot(ax=ax, gridlines=False)
+<span class="c1"># Compare with the target station (crosses)</span>
+<span class="n">target_GeorgeTown</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">gridlines</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">target_offshore</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">gridlines</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">target_Natal</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">gridlines</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-fig.legend()
+<span class="n">fig</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -267,49 +267,49 @@ fig.legend()
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>shortest = ispy.Section(
-    &quot;Shortest Section (sum of edge lengths)&quot;,
-    model_GeorgeTown,
-    model_offshore,
-    ds_IsD,
-    section_type=&quot;shortest&quot;
-)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">shortest</span> <span class="o">=</span> <span class="n">ispy</span><span class="o">.</span><span class="n">Section</span><span class="p">(</span>
+    <span class="s2">&quot;Shortest Section (sum of edge lengths)&quot;</span><span class="p">,</span>
+    <span class="n">model_GeorgeTown</span><span class="p">,</span>
+    <span class="n">model_offshore</span><span class="p">,</span>
+    <span class="n">ds_IsD</span><span class="p">,</span>
+    <span class="n">section_type</span><span class="o">=</span><span class="s2">&quot;shortest&quot;</span>
+<span class="p">)</span>
 
-great_circle = ispy.Section(
-    &quot;Approximate great circle&quot;,
-    model_offshore,
-    model_Natal,
-    ds_IsD,
-    section_type=&quot;great circle&quot;
-)
+<span class="n">great_circle</span> <span class="o">=</span> <span class="n">ispy</span><span class="o">.</span><span class="n">Section</span><span class="p">(</span>
+    <span class="s2">&quot;Approximate great circle&quot;</span><span class="p">,</span>
+    <span class="n">model_offshore</span><span class="p">,</span>
+    <span class="n">model_Natal</span><span class="p">,</span>
+    <span class="n">ds_IsD</span><span class="p">,</span>
+    <span class="n">section_type</span><span class="o">=</span><span class="s2">&quot;great circle&quot;</span>
+<span class="p">)</span>
 
-contour = ispy.Section(
-    &quot;Close to 500 m contour&quot;,
-    model_Natal,
-    model_GeorgeTown,
-    ds_IsD,
-    section_type=&quot;contour&quot;,
-    contour_data=ds_fx[&quot;column_thick_e&quot;],
-    contour_target=500,
-)
+<span class="n">contour</span> <span class="o">=</span> <span class="n">ispy</span><span class="o">.</span><span class="n">Section</span><span class="p">(</span>
+    <span class="s2">&quot;Close to 500 m contour&quot;</span><span class="p">,</span>
+    <span class="n">model_Natal</span><span class="p">,</span>
+    <span class="n">model_GeorgeTown</span><span class="p">,</span>
+    <span class="n">ds_IsD</span><span class="p">,</span>
+    <span class="n">section_type</span><span class="o">=</span><span class="s2">&quot;contour&quot;</span><span class="p">,</span>
+    <span class="n">contour_data</span><span class="o">=</span><span class="n">ds_fx</span><span class="p">[</span><span class="s2">&quot;column_thick_e&quot;</span><span class="p">],</span>
+    <span class="n">contour_target</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+<span class="p">)</span>
 
-fig, ax = setup_plot_area(ds_IsD)
-shortest.plot(ax=ax)
-contour.plot(ax=ax)
-great_circle.plot(ax=ax)
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">setup_plot_area</span><span class="p">(</span><span class="n">ds_IsD</span><span class="p">)</span>
+<span class="n">shortest</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">contour</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">great_circle</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
 
-fig.legend()
+<span class="n">fig</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 
-cax = ax.tripcolor(
-    ds_IsD[&quot;clon&quot;],
-    ds_IsD[&quot;clat&quot;],
-    ds_fx[&quot;column_thick_c&quot;],
-    vmin=0,
-    vmax=5000,
-    cmap=cmo.deep,
-)
+<span class="n">cax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">tripcolor</span><span class="p">(</span>
+    <span class="n">ds_IsD</span><span class="p">[</span><span class="s2">&quot;clon&quot;</span><span class="p">],</span>
+    <span class="n">ds_IsD</span><span class="p">[</span><span class="s2">&quot;clat&quot;</span><span class="p">],</span>
+    <span class="n">ds_fx</span><span class="p">[</span><span class="s2">&quot;column_thick_c&quot;</span><span class="p">],</span>
+    <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">vmax</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="n">cmo</span><span class="o">.</span><span class="n">deep</span><span class="p">,</span>
+<span class="p">)</span>
 
-fig.colorbar(cax, ax=ax, label=&quot;Column thickness&quot;)
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">cax</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Column thickness&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -334,8 +334,8 @@ fig.colorbar(cax, ax=ax, label=&quot;Column thickness&quot;)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>great_circle.set_pyic_orientation_along_path(ds_IsD)
-great_circle.edge_orientation
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">great_circle</span><span class="o">.</span><span class="n">set_pyic_orientation_along_path</span><span class="p">(</span><span class="n">ds_IsD</span><span class="p">)</span>
+<span class="n">great_circle</span><span class="o">.</span><span class="n">edge_orientation</span>
 </pre></div>
 </div>
 </div>
@@ -738,7 +738,7 @@ Coordinates:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>example_region = ispy.Region(&quot;Offshore of the Amazon&quot;, [shortest, great_circle, contour], ds_IsD)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">example_region</span> <span class="o">=</span> <span class="n">ispy</span><span class="o">.</span><span class="n">Region</span><span class="p">(</span><span class="s2">&quot;Offshore of the Amazon&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">shortest</span><span class="p">,</span> <span class="n">great_circle</span><span class="p">,</span> <span class="n">contour</span><span class="p">],</span> <span class="n">ds_IsD</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -757,8 +757,8 @@ Coordinates:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig, ax = setup_plot_area(ds_IsD)
-example_region.plot(ax=ax, gridlines=False)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">setup_plot_area</span><span class="p">(</span><span class="n">ds_IsD</span><span class="p">)</span>
+<span class="n">example_region</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">gridlines</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -774,8 +774,8 @@ example_region.plot(ax=ax, gridlines=False)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(example_region.edge_circuit)
-print(example_region.path_orientation)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">example_region</span><span class="o">.</span><span class="n">edge_circuit</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">example_region</span><span class="o">.</span><span class="n">path_orientation</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -810,7 +810,7 @@ Coordinates:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>example_region.contained_cells
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">example_region</span><span class="o">.</span><span class="n">contained_cells</span>
 </pre></div>
 </div>
 </div>
@@ -1271,7 +1271,7 @@ Coordinates:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>example_region.to_ispy_section(&quot;test.nc&quot;, dryrun=True)  # set dryrun=False to actually save the file.
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">example_region</span><span class="o">.</span><span class="n">to_ispy_section</span><span class="p">(</span><span class="s2">&quot;test.nc&quot;</span><span class="p">,</span> <span class="n">dryrun</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># set dryrun=False to actually save the file.</span>
 </pre></div>
 </div>
 </div>
@@ -1796,7 +1796,7 @@ Attributes:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>reconstructed_sections = example_region.extract_sections_from_region(ds_IsD)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">reconstructed_sections</span> <span class="o">=</span> <span class="n">example_region</span><span class="o">.</span><span class="n">extract_sections_from_region</span><span class="p">(</span><span class="n">ds_IsD</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1804,9 +1804,9 @@ Attributes:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig, ax = setup_plot_area(ds_IsD)
-for section in reconstructed_sections:
-    reconstructed_sections[section].plot(ax=ax, gridlines=False)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">setup_plot_area</span><span class="p">(</span><span class="n">ds_IsD</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">reconstructed_sections</span><span class="p">:</span>
+    <span class="n">reconstructed_sections</span><span class="p">[</span><span class="n">section</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">gridlines</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
