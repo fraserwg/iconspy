@@ -36,5 +36,4 @@ pip
 .. code-block:: bash
 
    cd iconspy
-   pip install -r requirements.txt
    pip install .
