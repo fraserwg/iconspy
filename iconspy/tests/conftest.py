@@ -10,10 +10,14 @@ def raw_grid():
 
     if not grid_path.exists():
         import requests
-        grid_download_link = "http://icon-downloads.mpimet.mpg.de/grids/public\
-            /mpim/0014/icon_grid_0014_R02B04_O.nc"
+        grid_download_link = "http://icon-downloads.mpimet.mpg.de/grids/" + \
+            "public/mpim/0014/icon_grid_0014_R02B04_O.nc"
+            
+        print(grid_download_link)
         try:
             r = requests.get(grid_download_link, allow_redirects=True)
+            
+            grid_path.parent.mkdir(parents=True, exist_ok=True)
             with open(grid_path, "wb") as grid_file:
                 grid_file.write(r.content)
         except:
