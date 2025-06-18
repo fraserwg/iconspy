@@ -15,6 +15,8 @@ dependencies:
   - scipy
   # testing
   - pytest
+  - netcdf4
+  - requests
   # documentation
   - sphinx
   - sphinx_rtd_theme
@@ -24,8 +26,7 @@ dependencies:
   - nbsphinx
   - nbconvert
   - myst-parser
-  - netcdf4
-  - requests
+  - ipython
   # pyicon requirements
   # - pandas
   # - ipywidgets
