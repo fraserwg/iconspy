@@ -1,10 +1,10 @@
+from itertools import product
 from scipy.sparse import coo_matrix, csgraph
 from scipy.spatial import KDTree
 from scipy.stats import mode
 import shapely
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
-import pyicon as pyic
 import numpy as np
 import xarray as xr
 import cartopy.crs as ccrs
@@ -195,6 +195,184 @@ def setup_figure_area(ax=None, proj=None, gridlines=True, coastlines=True, exten
     return fig, ax
 
 
+def _pyicon_convert_tgrid_data(ds_tg_in):
+    """Convert xarray grid file to grid file compatible with pyicon function.
+
+    Parameters
+    ----------
+    ds_tg_in : xr.Dataset
+        raw, unprocessed tgrid
+
+    Returns
+    -------
+    ds_IcD : xr.Dataset
+        A tgrid dataset compatible with pyicon functions
+
+
+    Notes
+    -----
+    Open classical ICON grid file by:
+    >>> ds_tg = xr.open_dataset(fpath_tg, chunks=dict())
+
+    Then convert by:
+    >>> ds_IcD = pyic.convert_tgrid_data(ds_tg)
+    
+    Notes
+    -----
+    Original code from pyicon under the MIT license.
+    Modified by Fraser Goldsworth on 18.06.2025.
+    See LICENSE file for more information.
+
+    """
+
+    # make deep copy of ds_tg_in to avoid glaobal modifications if during this function call
+    ds_tg = ds_tg_in.copy(deep=True)
+
+    if "converted_tgrid" in ds_tg.attrs:
+        raise ValueError(
+            "ds_tg has previously been converted by this function," + \
+            "applying the function again will lead to undocumented" + \
+            "behaviour."
+        )
+
+    ds_IcD = xr.Dataset()
+
+    # --- constants (from src/shared/mo_physical_constants.f90)
+    ds_IcD["grid_sphere_radius"] = 6.371229e6
+    ds_IcD["grav"] = 9.80665
+    ds_IcD["earth_angular_velocity"] = 7.29212e-05
+    ds_IcD["rho0"] = 1025.022
+    ds_IcD["rhoi"] = 917.0
+    ds_IcD["rhos"] = 300.0
+    ds_IcD["sal_ref"] = 35.0
+    ds_IcD["sal_ice"] = 5.0
+    rcpl = 3.1733
+    cpd = 1004.64
+    ds_IcD["cp"] = (rcpl + 1.0) * cpd
+    ds_IcD["tref"] = 273.15
+    ds_IcD["tmelt"] = 273.15
+    ds_IcD["tfreeze"] = -1.9
+    ds_IcD["alf"] = 2.8345e6 - 2.5008e6  # [J/kg]   latent heat for fusion
+
+    # --- distances and areas
+    ds_IcD["cell_area"] = ds_tg["cell_area"]
+    ds_IcD["cell_area_p"] = ds_tg["cell_area_p"]
+    ds_IcD["dual_area"] = ds_tg["dual_area"]
+    ds_IcD["edge_length"] = ds_tg["edge_length"]
+    ds_IcD["dual_edge_length"] = ds_tg["dual_edge_length"]
+    ds_IcD["edge_cell_distance"] = ds_tg["edge_cell_distance"].transpose()
+    # --- neighbor information
+    ds_IcD["vertex_of_cell"] = ds_tg["vertex_of_cell"].transpose() - 1
+    ds_IcD["edge_of_cell"] = ds_tg["edge_of_cell"].transpose() - 1
+    ds_IcD["vertices_of_vertex"] = ds_tg["vertices_of_vertex"].transpose() - 1
+    ds_IcD["edges_of_vertex"] = ds_tg["edges_of_vertex"].transpose() - 1
+    ds_IcD["edge_vertices"] = ds_tg["edge_vertices"].transpose() - 1
+    ds_IcD["adjacent_cell_of_edge"] = ds_tg["adjacent_cell_of_edge"].transpose() - 1
+    ds_IcD["cells_of_vertex"] = ds_tg["cells_of_vertex"].transpose() - 1
+    ds_IcD["adjacent_cell_of_cell"] = ds_tg["neighbor_cell_index"].transpose() - 1
+    # --- orientation
+    ds_IcD["orientation_of_normal"] = ds_tg["orientation_of_normal"].transpose()
+    ds_IcD["edge_orientation"] = ds_tg["edge_orientation"].transpose()
+    ds_IcD["tangent_orientation"] = ds_tg["edge_system_orientation"].transpose()
+
+    # --- masks
+    ds_IcD["cell_sea_land_mask"] = ds_tg["cell_sea_land_mask"]
+    ds_IcD["edge_sea_land_mask"] = ds_tg["edge_sea_land_mask"]
+
+    # --- coordinates
+    ds_IcD["cell_cart_vec"] = xr.concat(
+        [
+            ds_tg["cell_circumcenter_cartesian_x"],
+            ds_tg["cell_circumcenter_cartesian_y"],
+            ds_tg["cell_circumcenter_cartesian_z"],
+        ],
+        dim="cart",
+    ).transpose()
+
+    ds_IcD["vert_cart_vec"] = xr.concat(
+        [
+            ds_tg["cartesian_x_vertices"],
+            ds_tg["cartesian_y_vertices"],
+            ds_tg["cartesian_z_vertices"],
+        ],
+        dim="cart",
+    ).transpose()
+
+    ds_IcD["edge_cart_vec"] = xr.concat(
+        [
+            ds_tg["edge_middle_cartesian_x"],
+            ds_tg["edge_middle_cartesian_y"],
+            ds_tg["edge_middle_cartesian_z"],
+        ],
+        dim="cart",
+    ).transpose()
+
+    ds_IcD["dual_edge_cart_vec"] = xr.concat(
+        [
+            ds_tg["edge_dual_middle_cartesian_x"],
+            ds_tg["edge_dual_middle_cartesian_y"],
+            ds_tg["edge_dual_middle_cartesian_z"],
+        ],
+        dim="cart",
+    ).transpose()
+
+    ds_IcD["edge_prim_norm"] = xr.concat(
+        [
+            ds_tg["edge_primal_normal_cartesian_x"],
+            ds_tg["edge_primal_normal_cartesian_y"],
+            ds_tg["edge_primal_normal_cartesian_z"],
+        ],
+        dim="cart",
+    ).transpose()
+
+    for point, dim in product("ecv", ("lat", "lon")):
+        coord = point + dim
+        ds_IcD[coord] *= 180.0 / np.pi
+        ds_IcD[coord].attrs["units"] = "degrees"
+
+    ds_IcD["fc"] = (
+        2.0 * ds_IcD.earth_angular_velocity * np.sin(ds_IcD.clat * np.pi / 180.0)
+    )
+    ds_IcD["fe"] = (
+        2.0 * ds_IcD.earth_angular_velocity * np.sin(ds_IcD.elat * np.pi / 180.0)
+    )
+    ds_IcD["fv"] = (
+        2.0 * ds_IcD.earth_angular_velocity * np.sin(ds_IcD.vlat * np.pi / 180.0)
+    )
+
+    try:
+        ds_IcD = ds_IcD.rename({"ncells": "cell"})
+    except ValueError:
+        pass
+
+    # Default dimension names are messy and often wrong. Let's rename them.
+    dim_name_remappings = {
+        "vertex_of_cell": {"nv": "nv_c"},
+        "edge_vertices": {"nc": "nv_e"},
+        "vertices_of_vertex": {"ne": "nv_v"},
+        "edge_of_cell": {"nv": "ne_c"},
+        "edges_of_vertex": {"ne": "ne_v"},
+        "adjacent_cell_of_edge": {"nc": "nc_e"},
+        "cells_of_vertex": {"ne": "nc_v"},
+        "edge_cell_distance": {"nc": "nc_e"},
+        "orientation_of_normal": {"nv": "ne_c"},
+        "edge_orientation": {"ne": "ne_v"},
+        "adjacent_cell_of_cell": {"nv": "nc_c"},
+    }
+
+    for variable in dim_name_remappings:
+        ds_IcD[variable] = ds_IcD[variable].rename(dim_name_remappings[variable])
+
+    ds_IcD.attrs["converted_tgrid"] = True
+    ds_tg.attrs["converted_tgrid"] = True
+
+    standard_order = ["cell", "vertex", "edge", "nc", "nv", "ne", "cart", ...]
+    ds_IcD = ds_IcD.transpose(*standard_order, missing_dims="ignore")
+
+    return ds_IcD
+
+
+
 def convert_tgrid_data(ds_tgrid, pyic_kwargs=None):
     """Formats the model grid in the format required by iconspy
 
@@ -228,7 +406,7 @@ def convert_tgrid_data(ds_tgrid, pyic_kwargs=None):
     if pyic_kwargs is None:
         pyic_kwargs = dict()
     
-    ds_IsD = pyic.convert_tgrid_data(ds_tgrid, **pyic_kwargs)
+    ds_IsD = _pyicon_convert_tgrid_data(ds_tgrid, **pyic_kwargs)
 
     for point in ["cell", "edge", "vertex"]:
         if (point not in ds_IsD.coords) and (point in ds_IsD.dims):

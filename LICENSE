@@ -2,7 +2,9 @@ This software contains components licensed under the following terms:
 
 ---
 
-Component: function ispy.core.Section.set_pyic_orientation_along_path
+Components: 
+    - function ispy.core.Section.set_pyic_orientation_along_path
+    - function ispy.utils._pyicon_convert_tgrid_data
 Original Author: Nils Brueggemann, 2020
 License: MIT
 

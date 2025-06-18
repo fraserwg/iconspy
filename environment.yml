@@ -24,21 +24,21 @@ dependencies:
   - nbsphinx
   - nbconvert
   - myst-parser
-  # pyicon requirements
   - netcdf4
-  - pandas
-  - ipywidgets
-  - ipykernel
-  - jupytext
-  - nbconvert
-  - healpy
-  - dask[complete]
-  - intake
   - requests
-  - zarr
-  - intake-xarray
-  - intake-esm
-  - ipdb
+  # pyicon requirements
+  # - pandas
+  # - ipywidgets
+  # - ipykernel
+  # - jupytext
+  # - nbconvert
+  # - healpy
+  # - dask[complete]
+  # - intake
+  # - zarr
+  # - intake-xarray
+  # - intake-esm
+  # - ipdb
   # extras
   - flox
   - numba
@@ -50,5 +50,5 @@ dependencies:
   - aiohttp
   - sparse
   - h5netcdf
-  - pip:
-    - pyicon-diagnostics @ git+https://gitlab.dkrz.de/m300602/pyicon.git
+  # - pip:
+    # - pyicon-diagnostics @ git+https://gitlab.dkrz.de/m300602/pyicon.git

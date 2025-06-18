@@ -29,7 +29,7 @@ def raw_grid():
 
 @pytest.fixture()
 def ispy_grid(raw_grid):
-    return ispy.convert_tgrid_data(raw_grid, pyic_kwargs={"old_dim_behaviour": False})
+    return ispy.convert_tgrid_data(raw_grid)
 
 
 @pytest.fixture()
