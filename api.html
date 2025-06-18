@@ -89,6 +89,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#iconspy.Section.lat_lon_as_cartesian_weights"><code class="docutils literal notranslate"><span class="pre">Section.lat_lon_as_cartesian_weights()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#iconspy.Section.plot"><code class="docutils literal notranslate"><span class="pre">Section.plot()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#iconspy.Section.reverse_section"><code class="docutils literal notranslate"><span class="pre">Section.reverse_section()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#iconspy.Section.set_pyic_orientation_along_path"><code class="docutils literal notranslate"><span class="pre">Section.set_pyic_orientation_along_path()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#iconspy.Section.to_ispy_section"><code class="docutils literal notranslate"><span class="pre">Section.to_ispy_section()</span></code></a></li>
 </ul>
 </li>
@@ -432,6 +433,27 @@ to the target station</p>
 <dt class="sig sig-object py" id="iconspy.Section.reverse_section">
 <span class="sig-name descname"><span class="pre">reverse_section</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Section.reverse_section" title="Link to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="iconspy.Section.set_pyic_orientation_along_path">
+<span class="sig-name descname"><span class="pre">set_pyic_orientation_along_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_IsD</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#iconspy.Section.set_pyic_orientation_along_path" title="Link to this definition"></a></dt>
+<dd><p>Calculate the orientation of the edges along the path</p>
+<p>Add the edge orientation object to the section object using code from
+pyicon.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> (<a class="reference internal" href="#iconspy.Section" title="iconspy.Section"><em>iconspy.Section</em></a>) – The section you wish to calculate the edge orientation for</p></li>
+<li><p><strong>ds_IsD</strong> (<em>xarray.Dataset</em>) – A dataset containing the model grid information, having been
+operated on by iconspy.convert_tgrid_data()</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Original code from pyicon under the MIT license.
+Modified by Fraser Goldsworth on 18.06.2025.
+See LICENSE file for more information.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="iconspy.Section.to_ispy_section">
