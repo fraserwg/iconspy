@@ -403,6 +403,14 @@ def convert_tgrid_data(ds_tgrid, pyic_kwargs=None):
     >>> ds_IsD = convert_tgrid_data(ds_tgrid)
     >>> ds_IsD = ds_IsD.load()
     """
+    if "IsD_compatible_flag" in ds_tgrid.attrs:
+        if ds_tgrid.attrs["IsD_compatible_flag"] == True:
+            raise ValueError(
+                "ds_tgrid has previously been converted by this function," + \
+                "applying the function again will lead to undocumented" + \
+                "behaviour."
+            )
+    
     if pyic_kwargs is None:
         pyic_kwargs = dict()
     
@@ -415,7 +423,26 @@ def convert_tgrid_data(ds_tgrid, pyic_kwargs=None):
     ds_IsD = ds_IsD.load()
     ds_IsD["edge_vertices"] = ds_IsD["edge_vertices"].astype("int32")
     
+    ds_IsD.attrs["IsD_compatible_flag"] = True
+    
     return ds_IsD
+
+def _assert_IsD_compatible(ds_IsD):
+    """ Checks whether a dataset is compatible with iconspy functions
+
+    Parameters
+    ----------
+    ds_IsD : xarray.Dataset
+        Dataset to be checked
+    """
+    # No flag
+    if ("IsD_compatible_flag" not in ds_IsD.attrs):
+        raise ValueError("The ds_IsD dataset provided is not an iconspy compatible dataset. Have you ispy.convert_tgrid_data() on it to format it correctly?")
+    
+    # Flag is incorrect
+    elif ds_IsD.attrs["IsD_compatible_flag"] != True:
+        raise ValueError("The ds_IsD dataset provided is explicitly not an iconspy compatible dataset.")
+
 
 
 ##### Pyint functions

@@ -10,6 +10,7 @@ from .utils import (
     find_vertex_path,
     vertex_path_to_edge_path,
     orientation_along_path,
+    _assert_IsD_compatible,
 )
 
 import datetime
@@ -201,6 +202,8 @@ class ModelStation:
 
 class WetModelStation(ModelStation):
     def __init__(self, target_station, ds_IsD):
+        _assert_IsD_compatible(ds_IsD)
+        
         if target_station.boundary == True:
             raise ValueError("target station indicates the model station should be on a boundary")
         super().__init__(target_station)
@@ -214,8 +217,11 @@ class WetModelStation(ModelStation):
         self.model_lon = float(ds_IsD["vlon"].sel(vertex=self.vertex).values)
         self.model_lat = float(ds_IsD["vlat"].sel(vertex=self.vertex).values)
 
+
 class BoundaryModelStation(ModelStation):
     def __init__(self, target_station, ds_IsD):
+        _assert_IsD_compatible(ds_IsD)
+        
         if target_station.boundary == False:
             raise ValueError("target station indicates the model station should be wet")
         super().__init__(target_station)
@@ -233,6 +239,9 @@ class BoundaryModelStation(ModelStation):
 class Section:
     def __init__(self, name, model_station_a, model_station_b, ds_IsD,
                  section_type=None, contour_target=None, contour_data=None):
+
+        _assert_IsD_compatible(ds_IsD)
+
         self.name = _Name(name)
         self.station_a = model_station_a
         self.station_b = model_station_b
@@ -295,6 +304,9 @@ class Section:
         See LICENSE file for more information.
 
         """
+        
+        _assert_IsD_compatible(ds_IsD)
+        
         ie_list = self.edge_path
         iv_list = self.vertex_path
         
@@ -321,6 +333,8 @@ class Section:
         )
     
     def compute_vertex_graph(self, ds_IsD, contour_target=None, contour_data=None):
+        _assert_IsD_compatible(ds_IsD)
+        
         if self.section_type == "shortest":
             weights = ds_IsD["edge_length"]
         elif self.section_type == "isolat":
@@ -356,6 +370,8 @@ class Section:
         return reversed_self
     
     def great_circle_weights(self, ds_IsD, angular_distance=True):
+        _assert_IsD_compatible(ds_IsD)
+        
         station_a_cart = ds_IsD["vert_cart_vec"].sel(vertex=self.station_a.vertex)
         station_b_cart = ds_IsD["vert_cart_vec"].sel(vertex=self.station_b.vertex)
         
@@ -468,6 +484,8 @@ class Region:
     def __init__(self, name, section_list, ds_IsD, test=False, manual_order=False):
         self.name = _Name(name)
         self.section_list = None
+        
+        _assert_IsD_compatible(ds_IsD)
         
         # Order the sections provided
         if not manual_order:
