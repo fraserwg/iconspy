@@ -5,12 +5,15 @@ from .utils import (
     create_connectivity_matrix,
     create_boundary_connectivity_matrix,
     setup_figure_area,
-    find_boundary_vertex,
-    find_wet_vertex,
     find_vertex_path,
     vertex_path_to_edge_path,
     orientation_along_path,
     _assert_IsD_compatible,
+)
+
+from .kdtree import (
+    find_wet_vertex,
+    find_boundary_vertex,
 )
 
 import datetime
