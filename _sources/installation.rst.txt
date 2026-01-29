@@ -22,7 +22,7 @@ or to create a new environment:
 
    cd iconspy
    mamba env create -f environment.yml
-   mamba activate ispy_py311
+   mamba activate ispy
 
 you can then install the package using:
 
