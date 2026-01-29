@@ -30,9 +30,10 @@ class IspyBoundaryBallTree(_IspyBallTree):
             ),
             dim="cart_h",
         ).transpose(..., "cart_h")
+    
         
         # Construct a BallTree from these vertices
-        self.BallTree = BallTree(self.boundary_vertex_pairs, metric='haversine')
+        self.BallTree = BallTree(self.boundary_vertex_pairs, metric="haversine")
 
 
 def find_boundary_vertex(ds_IsD,
@@ -72,6 +73,7 @@ def find_boundary_vertex(ds_IsD,
     # Perform the query
     query_points = list(zip(lat, lon))
     _, vidx = boundary_BallTree.BallTree.query(query_points, **query_kwargs)
+    vidx = vidx.squeeze()
     
     return boundary_BallTree.boundary_vertex_pairs["vertex"].isel(vertex=vidx)
 
