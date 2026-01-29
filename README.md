@@ -12,7 +12,8 @@ in particular the ability to join together multiple sections and construct secti
 Documentation is hosted [here](https://fraserwg.github.io/iconspy/) and the package code [here](https://github.com/fraserwg/iconspy).
 
 ## Issues and feature requests
-The code contained in this package is a by-product from a project I was working on.
-I thought it might be useful for others so have packaged it up and added some documentation.
 If you encounter any problems with the code please raise an issue on [github](https://github.com/fraserwg/iconspy).
 If you have feature requests feel free to reach out there also.
+
+## Acknowledgements
+This software was developed as part of the EERIE project (grant agreement no 101081383) funded by the European Union.
