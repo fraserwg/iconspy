@@ -44,7 +44,6 @@ class IspyBoundaryBallTree(_IspyBallTree):
 def find_boundary_vertex(ds_IsD,
                          lon=None,
                          lat=None,
-                         boundary_BallTree=None,
                          query_kwargs=None):
     """finds vertex on boundary near lat and lon
 
@@ -68,10 +67,7 @@ def find_boundary_vertex(ds_IsD,
     
     
     # Create or use existing boundary BallTree
-    if boundary_BallTree is not None:
-        assert isinstance(boundary_BallTree, IspyBoundaryBallTree)
-    else:
-        boundary_BallTree = IspyBoundaryBallTree(ds_IsD)
+    boundary_BallTree = ds_IsD.attrs["boundary_BallTree"]
     
     if query_kwargs is None:
         query_kwargs = dict()
@@ -106,7 +102,6 @@ class IspyWetBallTree(_IspyBallTree):
 def find_wet_vertex(ds_IsD, 
                     lon=None,
                     lat=None,
-                    wet_BallTree=None,
                     query_kwargs=None,
                     assert_wet=True):
     """finds wet vertex near lat and lon
@@ -130,11 +125,9 @@ def find_wet_vertex(ds_IsD,
     if np.isscalar(lat):
         lat = [lat]
     lon, lat = np.radians(np.asarray(lon)), np.radians(np.asarray(lat))
-        
-    if wet_BallTree is not None:
-        assert isinstance(wet_BallTree, IspyWetBallTree)
-    else:
-        wet_BallTree = IspyWetBallTree(ds_IsD)
+    
+    # Get the wet BallTree from the dataset attributes
+    wet_BallTree = ds_IsD.attrs["wet_BallTree"]
 
     if query_kwargs is None:
         query_kwargs = dict()

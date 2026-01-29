@@ -1,6 +1,5 @@
 from itertools import product
 from scipy.sparse import coo_matrix, csgraph
-from scipy.spatial import KDTree
 from scipy.stats import mode
 import shapely
 import matplotlib.pyplot as plt
@@ -8,6 +7,10 @@ import cartopy.crs as ccrs
 import numpy as np
 import xarray as xr
 import cartopy.crs as ccrs
+from .balltree import (
+    IspyBoundaryBallTree,
+    IspyWetBallTree,
+)
 
 lambert_greenland = ccrs.LambertConformal(central_longitude=-15, standard_parallels=(62, 78))
 
@@ -422,6 +425,17 @@ def convert_tgrid_data(ds_tgrid, pyic_kwargs=None):
 
     ds_IsD = ds_IsD.load()
     ds_IsD["edge_vertices"] = ds_IsD["edge_vertices"].astype("int32")
+    
+    boundary_BallTree = IspyBoundaryBallTree(ds_IsD)
+    wet_BallTree = IspyWetBallTree(ds_IsD)
+    
+    ds_IsD = ds_IsD.assign_attrs(
+        {
+            "boundary_BallTree": boundary_BallTree,
+            "wet_BallTree": wet_BallTree,
+        }
+    )
+    
     
     ds_IsD.attrs["IsD_compatible_flag"] = True
     
