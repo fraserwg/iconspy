@@ -22,6 +22,7 @@ dependencies = [
     "cmocean",
     "netcdf4",
     "requests",
+    "scikit-learn"
     # "pyicon-diagnostics @ git+https://gitlab.dkrz.de/m300602/pyicon.git",
     
     # Pyicon dependencies
