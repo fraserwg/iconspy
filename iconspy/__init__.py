@@ -5,7 +5,6 @@ __author__ = "Fraser William Goldsworth"
 # Import key functionality to simplify access
 from .core import (
     TargetStation,
-    ModelStation,
     WetModelStation,
     BoundaryModelStation,
     Section,

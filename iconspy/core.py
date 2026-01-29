@@ -128,6 +128,7 @@ class TargetStation:
         """
         return WetModelStation(self, ds_IsD)
 
+
     def plot(self, ax=None, proj=None, extent=None,
              coastlines=True, gridlines=True,
             ):
@@ -157,7 +158,7 @@ class TargetStation:
         )
 
 
-class ModelStation:
+class __ModelStation:
     """Represents a station on the model grid
     
     Normally created using iconspy.TargetStation.to_model_station()
@@ -186,7 +187,7 @@ class ModelStation:
         self.model_lat = None 
 
     def __repr__(self):
-        return f"ModelStation({self.name})"
+        return f"__ModelStation({self.name})"
 
     def plot(self, ax=None, proj=None, extent=None,
              coastlines=True, gridlines=True,
@@ -203,7 +204,7 @@ class ModelStation:
         )
 
 
-class WetModelStation(ModelStation):
+class WetModelStation(__ModelStation):
     def __init__(self, target_station, ds_IsD):
         _assert_IsD_compatible(ds_IsD)
         
@@ -220,8 +221,11 @@ class WetModelStation(ModelStation):
         self.model_lon = float(ds_IsD["vlon"].sel(vertex=self.vertex).values)
         self.model_lat = float(ds_IsD["vlat"].sel(vertex=self.vertex).values)
 
+    def __repr__(self):
+        return f"_WetModelStation({self.name})"
 
-class BoundaryModelStation(ModelStation):
+
+class BoundaryModelStation(__ModelStation):
     def __init__(self, target_station, ds_IsD):
         _assert_IsD_compatible(ds_IsD)
         
@@ -237,6 +241,9 @@ class BoundaryModelStation(ModelStation):
     
         self.model_lon = float(ds_IsD["vlon"].sel(vertex=self.vertex).values)
         self.model_lat = float(ds_IsD["vlat"].sel(vertex=self.vertex).values)
+    
+    def __repr__(self):
+        return f"BoundaryModelStation({self.name})"
 
 
 class Section:
@@ -253,7 +260,7 @@ class Section:
         self.edge_path = None
         self.edge_orientation = None
 
-        vertex_graph = self.compute_vertex_graph(ds_IsD, contour_target, contour_data)
+        vertex_graph = self.__compute_vertex_graph(ds_IsD, contour_target, contour_data)
 
         vertex_path_np = find_vertex_path(vertex_graph, self.station_a.vertex, self.station_b.vertex)
         self.vertex_path = ds_IsD["vertex"].sel(vertex=vertex_path_np).rename({"vertex": "step_in_path_v"})
@@ -335,7 +342,7 @@ class Section:
             label=self.name,
         )
     
-    def compute_vertex_graph(self, ds_IsD, contour_target=None, contour_data=None):
+    def __compute_vertex_graph(self, ds_IsD, contour_target=None, contour_data=None):
         _assert_IsD_compatible(ds_IsD)
         
         if self.section_type == "shortest":
@@ -345,11 +352,11 @@ class Section:
         elif self.section_type == "isolon":
             raise NotImplementedError("section type requested is not implemented")
         elif self.section_type == "great circle":
-            weights = self.great_circle_weights(ds_IsD)
+            weights = self.__great_circle_weights(ds_IsD)
         elif self.section_type == "lat lon straight line":
-            weights = self.lat_lon_as_cartesian_weights(ds_IsD)
+            weights = self.__lat_lon_as_cartesian_weights(ds_IsD)
         elif self.section_type == "contour":
-            weights = self.contour_weights(ds_IsD, contour_target, contour_data)
+            weights = self.__contour_weights(ds_IsD, contour_target, contour_data)
         else:
             raise NotImplementedError("section type requested is not implemented")
 
@@ -358,10 +365,11 @@ class Section:
         return vertex_graph
     
 
-    def contour_weights(self, ds_IsD, contour_target, contour_data):
+    def __contour_weights(self, ds_IsD, contour_target, contour_data):
         weights = abs(contour_data - contour_target)
         return weights
-    
+
+
     def reverse_section(self):
         reversed_self = cp.deepcopy(self)
         reversed_self.station_a, reversed_self.station_b = self.station_b, self.station_a
@@ -369,10 +377,11 @@ class Section:
         if self.edge_path is not None:
             reversed_self.edge_path = self.edge_path[::-1]
         if self.edge_orientation is not None:
-            reversed_self.edge_orientation = self.edge_orientation[::-1]
+            reversed_self.edge_orientation = -1 * self.edge_orientation[::-1]
         return reversed_self
-    
-    def great_circle_weights(self, ds_IsD, angular_distance=True):
+
+
+    def __great_circle_weights(self, ds_IsD, angular_distance=True):
         _assert_IsD_compatible(ds_IsD)
         
         station_a_cart = ds_IsD["vert_cart_vec"].sel(vertex=self.station_a.vertex)
@@ -415,7 +424,7 @@ class Section:
         return weights
 
 
-    def lat_lon_as_cartesian_weights(self, ds_IsD):
+    def __lat_lon_as_cartesian_weights(self, ds_IsD):
         x1 = ds_IsD["vlon"].sel(vertex=self.station_a.vertex).squeeze()
         x2 = ds_IsD["vlon"].sel(vertex=self.station_b.vertex).squeeze()
         
@@ -431,17 +440,19 @@ class Section:
 
         return weights
 
+
 class LandSection(Section):
     def __repr__(self):
         return f"LandSection({self.name}, {self.station_a.name}, {self.station_b.name}, {self.section_type})"
     
-    def compute_vertex_graph(self, ds_IsD, contour_target=None, contour_data=None):
+    def __compute_vertex_graph(self, ds_IsD, contour_target=None, contour_data=None):
         if self.section_type != "shortest":
             raise ValueError(f"LandSection should have section type of 'shortest', not {self.section_type}")
 
         vertex_graph = create_boundary_connectivity_matrix(ds_IsD, weight_type="distance")
 
         return vertex_graph
+
 
 class _ReconstructedSection(Section):
     def __init__(self, section, vertex_path, edge_path, edge_orientation, ds_IsD):
@@ -492,22 +503,24 @@ class Region:
         
         # Order the sections provided
         if not manual_order:
-            section_order = self.calculate_section_order(section_list)
-            self.order_sections(section_order, section_list)
+            section_order = self.__calculate_section_order(section_list)
+            self.__order_sections(section_order, section_list)
             # Check the sections have been successfuly ordered
-            assert self.calculate_section_order(self.section_list) == list(range(len(self.section_list)))
+            assert self.__calculate_section_order(self.section_list) == list(range(len(self.section_list)))
         else:
             self.section_list = section_list
 
         # Get the vertex, edge and orientation xr.DataArrays
-        self.vertex_circuit = self.calculate_vertex_circuit(ds_IsD)
+        self.vertex_circuit = self.__calculate_vertex_circuit(ds_IsD)
         if not test:
             self.edge_circuit = vertex_path_to_edge_path(ds_IsD, self.vertex_circuit)
             self.path_orientation = orientation_along_path(ds_IsD, self.vertex_circuit, self.edge_circuit)
-            self.contained_cells = self.calculate_contained_cells(ds_IsD)
-
+            self.contained_cells = self.__calculate_contained_cells(ds_IsD)
+         
+    
     def __repr__(self):
         return f"Region({self.name}, {self.section_list})"
+
 
     def to_pyicon_section(self, fpath):
         raise NotImplementedError("Method not yet implemented")
@@ -521,11 +534,7 @@ class Region:
         ds_path["vertex_path"] = self.vertex_circuit
         ds_path["path_orientation"] = self.path_orientation
         ds_path["contained_cells"] = self.contained_cells
-        # ds_path.attrs["grid_path"] = str(icon_control["2d_grid"].metadata)
-        # ds_path.attrs["author"] = "Fraser Goldsworth: frasergocean[at]gmail.com"
         ds_path.attrs["date"] = str(datetime.datetime.now())[:19]
-        # ds_path.attrs["script"] = str(sba.base_path / "src/section-construction/v2-section-construction.ipynb")
-        # ds_path.attrs["version"] = f"sba-proj: {sba.get_git_commit_hash()}"
 
         if dryrun:
             print("Not saving as dryrun=True")
@@ -534,8 +543,7 @@ class Region:
 
         return ds_path
 
-        
-    def calculate_contained_cells(self, ds_IsD):
+    def __calculate_contained_cells(self, ds_IsD):
         ring_coords = xr.concat(
             (self.vertex_circuit["vlon"], self.vertex_circuit["vlat"]), dim="cart"
         ).transpose(..., "cart")
@@ -567,7 +575,7 @@ class Region:
             label=self.name
         )
     
-    def calculate_vertex_circuit(self, ds_IsD):
+    def __calculate_vertex_circuit(self, ds_IsD):
         # Create the vertex circuit by combining the sections
         vertex_circuit = np.hstack([section.vertex_path for section in self.section_list])
         
@@ -594,8 +602,7 @@ class Region:
         
         return vertex_path_xr
 
-    
-    def order_sections(self, section_order, section_list):
+    def __order_sections(self, section_order, section_list):
         ordered_section_list = []
         for section_index in section_order:
             if section_index >= 0:
@@ -607,7 +614,7 @@ class Region:
         self.section_list = ordered_section_list    
 
 
-    def calculate_section_order(self, section_list):
+    def __calculate_section_order(self, section_list):
         """ Given a list of sections, calculates the
         order the sections should be in.
 
