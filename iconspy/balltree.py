@@ -73,7 +73,7 @@ def find_boundary_vertex(ds_IsD,
     # Perform the query
     query_points = list(zip(lat, lon))
     _, vidx = boundary_BallTree.BallTree.query(query_points, **query_kwargs)
-    vidx = vidx.squeeze()
+    vidx = vidx[0]
     
     return boundary_BallTree.boundary_vertex_pairs["vertex"].isel(vertex=vidx)
 
@@ -122,7 +122,7 @@ def find_wet_vertex(ds_IsD,
     # Perform the query
     query_points = list(zip(lat, lon))
     _, vidx = wet_BallTree.BallTree.query(query_points, **query_kwargs)
-    vidx = vidx.squeeze()
+    vidx = vidx[0]
     
     # Verify the point is wet if requested
     if assert_wet:
@@ -132,8 +132,7 @@ def find_wet_vertex(ds_IsD,
                 'assert_wet=False'.")
 
     # return vidx
-    return ds_IsD["vertex"].isel(vertex=vidx.squeeze())
-
+    return ds_IsD["vertex"].isel(vertex=vidx)
 
 def _is_vertex_wet(ds_IsD, vidx):
     adjacent_cells = ds_IsD["cells_of_vertex"].isel(vertex=vidx).load()

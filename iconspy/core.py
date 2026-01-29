@@ -11,7 +11,7 @@ from .utils import (
     _assert_IsD_compatible,
 )
 
-from .kdtree import (
+from .balltree import (
     find_wet_vertex,
     find_boundary_vertex,
 )

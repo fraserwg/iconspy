@@ -13,6 +13,7 @@ dependencies:
   - shapely
   - matplotlib
   - scipy
+  - scikit-learn
   # testing
   - pytest
   - netcdf4
