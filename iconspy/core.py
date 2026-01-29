@@ -211,11 +211,11 @@ class WetModelStation(ModelStation):
             raise ValueError("target station indicates the model station should be on a boundary")
         super().__init__(target_station)
 
-        self.vertex = int(find_wet_vertex(
+        self.vertex = find_wet_vertex(
             ds_IsD,
             lon=self.target_station.target_lon,
             lat=self.target_station.target_lat,
-        ).values[0])
+        )
         
         self.model_lon = float(ds_IsD["vlon"].sel(vertex=self.vertex).values)
         self.model_lat = float(ds_IsD["vlat"].sel(vertex=self.vertex).values)
@@ -229,11 +229,11 @@ class BoundaryModelStation(ModelStation):
             raise ValueError("target station indicates the model station should be wet")
         super().__init__(target_station)
 
-        self.vertex = int(find_boundary_vertex(
+        self.vertex = find_boundary_vertex(
             ds_IsD,
             lon=self.target_station.target_lon,
             lat=self.target_station.target_lat,
-        ).values[0])
+        )
     
         self.model_lon = float(ds_IsD["vlon"].sel(vertex=self.vertex).values)
         self.model_lat = float(ds_IsD["vlat"].sel(vertex=self.vertex).values)

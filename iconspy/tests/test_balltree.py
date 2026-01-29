@@ -28,9 +28,9 @@ def test_IspyBoundaryBallTree(ispy_grid):
 
     for target_lat, target_lon, expected_vertex in lat_lon_idx:
         _, _idx = boundary_BallTree.BallTree.query([[np.radians(target_lat), np.radians(target_lon)]])
-        _idx = _idx.squeeze()
+        _idx = _idx[0, 0]
         idx = boundary_BallTree.boundary_vertex_pairs["vertex"].isel(vertex=_idx)
-        idx = idx.squeeze()
+        idx = idx.item()
         assert idx == expected_vertex
 
 
@@ -61,7 +61,6 @@ def test_find_boundary_vertex(ispy_grid):
             lon=target_lon,
             lat=target_lat,
         )
-        vidx = vidx.squeeze().values
 
         assert vidx == expected_vertex
 
@@ -90,7 +89,7 @@ def test_IspyWetBallTree(ispy_grid):
 
     for target_lat, target_lon, expected_vertex in lat_lon_idx:
         _, idx = wet_BallTree.BallTree.query([[np.radians(target_lat), np.radians(target_lon)]])
-        idx = idx.squeeze()
+        idx = idx[0, 0]
         assert idx == expected_vertex
 
 def test_find_wet_vertex(ispy_grid):
@@ -121,6 +120,5 @@ def test_find_wet_vertex(ispy_grid):
             lat=target_lat,
             assert_wet=True,
         )
-        vidx = vidx.squeeze().values
 
         assert vidx == expected_vertex
