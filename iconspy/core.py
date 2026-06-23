@@ -283,17 +283,20 @@ class Section:
     def __repr__(self):
         return f"Section({self.name}, {self.station_a.name}, {self.station_b.name}, {self.section_type})"
 
-    def to_ispy_section(self, fpath=None):
+    def to_ispy_section(self, fpath=None, attrs=dict()):
         ds_path = xr.Dataset()
         ds_path["edge_path"] = self.edge_path
         ds_path["vertex_path"] = self.vertex_path
         ds_path["path_orientation"] = self.edge_orientation
-        # ds_path.attrs["grid_path"] = str(icon_control["2d_grid"].metadata)
-        # ds_path.attrs["author"] = "Fraser Goldsworth: frasergocean[at]gmail.com"
-        ds_path.attrs["date"] = str(datetime.datetime.now())[:19]
-        # ds_path.attrs["script"] = str(sba.base_path / "src/section-construction/v2-section-construction.ipynb")
-        ds_path.attrs["ispy version"] = __version__
-        ds_path.attrs["uuidOfHGrid"] = self._uuidOfHGrid
+        
+        ds_path = ds_path.assign_attrs(
+            {            
+                "date": str(datetime.datetime.now())[:19],
+                "ispy version": __version__,
+                "uuidOfHGrid": self._uuidOfHGrid,
+                "section name": str(self.name),
+            }
+        ).assign_attrs(attrs)
 
         if fpath is not None:
             print(f"Output being saved to {fpath}")
@@ -585,16 +588,22 @@ class Region:
         raise NotImplementedError("Method not yet implemented")
 
 
-    def to_ispy_section(self, fpath=None):
+    def to_ispy_section(self, fpath=None, attrs=dict()):
             
         ds_path = xr.Dataset()
         ds_path["edge_path"] = self.edge_circuit
         ds_path["vertex_path"] = self.vertex_circuit
         ds_path["path_orientation"] = self.path_orientation
         ds_path["contained_cells"] = self.contained_cells
-        ds_path.attrs["date"] = str(datetime.datetime.now())[:19]
-        ds_path.attrs["ispy version"] = __version__
-        ds_path.attrs["uuidOfHGrid"] = self._uuidOfHGrid
+        
+        ds_path = ds_path.assign_attrs(
+            {            
+                "date": str(datetime.datetime.now())[:19],
+                "ispy version": __version__,
+                "uuidOfHGrid": self._uuidOfHGrid,
+                "section name": str(self.name),
+            }
+        ).assign_attrs(attrs)
         
         if fpath is not None:
             print(f"Output will be saved to {fpath}")
