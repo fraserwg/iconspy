@@ -1,5 +1,6 @@
 import xarray as xr
 import numpy as np
+import warnings
 import cartopy.crs as ccrs
 from .utils import (
     create_connectivity_matrix,
@@ -15,6 +16,8 @@ from .balltree import (
     find_wet_vertex,
     find_boundary_vertex,
 )
+
+from . import __version__
 
 import datetime
 import copy as cp
@@ -184,7 +187,8 @@ class __ModelStation:
         self.name = target_station.name
         self.vertex = None
         self.model_lon = None
-        self.model_lat = None 
+        self.model_lat = None
+        self._uuidOfHGrid = None
 
     def __repr__(self):
         return f"__ModelStation({self.name})"
@@ -220,6 +224,7 @@ class WetModelStation(__ModelStation):
         
         self.model_lon = float(ds_IsD["vlon"].sel(vertex=self.vertex).values)
         self.model_lat = float(ds_IsD["vlat"].sel(vertex=self.vertex).values)
+        self._uuidOfHGrid = ds_IsD.attrs["uuidOfHGrid"]
 
     def __repr__(self):
         return f"_WetModelStation({self.name})"
@@ -241,7 +246,7 @@ class BoundaryModelStation(__ModelStation):
     
         self.model_lon = float(ds_IsD["vlon"].sel(vertex=self.vertex).values)
         self.model_lat = float(ds_IsD["vlat"].sel(vertex=self.vertex).values)
-    
+        self._uuidOfHGrid = ds_IsD.attrs["uuidOfHGrid"]
     def __repr__(self):
         return f"BoundaryModelStation({self.name})"
 
@@ -259,16 +264,21 @@ class Section:
         self.vertex_path = None
         self.edge_path = None
         self.edge_orientation = None
+        self._uuidOfHGrid = ds_IsD.attrs["uuidOfHGrid"]
 
         vertex_graph = self.__compute_vertex_graph(ds_IsD, contour_target, contour_data)
 
         vertex_path_np = find_vertex_path(vertex_graph, self.station_a.vertex, self.station_b.vertex)
         self.vertex_path = ds_IsD["vertex"].sel(vertex=vertex_path_np).rename({"vertex": "step_in_path_v"})
+        self.vertex_path["step_in_path_v"] = np.arange(self.vertex_path.sizes["step_in_path_v"])
         
         self.vlon = ds_IsD["vlon"].sel(vertex=self.vertex_path)
         self.vlat = ds_IsD["vlat"].sel(vertex=self.vertex_path)
 
         self.edge_path = vertex_path_to_edge_path(ds_IsD, self.vertex_path)
+
+        self.set_pyic_orientation_along_path(ds_IsD)
+
 
     def __repr__(self):
         return f"Section({self.name}, {self.station_a.name}, {self.station_b.name}, {self.section_type})"
@@ -283,7 +293,8 @@ class Section:
         # ds_path.attrs["author"] = "Fraser Goldsworth: frasergocean[at]gmail.com"
         ds_path.attrs["date"] = str(datetime.datetime.now())[:19]
         # ds_path.attrs["script"] = str(sba.base_path / "src/section-construction/v2-section-construction.ipynb")
-        # ds_path.attrs["version"] = f"sba-proj: {sba.get_git_commit_hash()}"
+        ds_path.attrs["ispy version"] = __version__
+        ds_path.attrs["uuidOfHGrid"] = self._uuidOfHGrid
 
         if dryrun:
             print("Not saving as dryrun=True")
@@ -327,6 +338,12 @@ class Section:
             
         orientation = xr.ones_like(self.edge_path) * or_list
         
+        orientation = orientation.assign_attrs(
+            {
+                "sign convention": "positive to the left when traversing the path"
+            }
+        )
+        
         self.edge_orientation = orientation
 
     def plot(self, ax=None, proj=None, extent=None,
@@ -347,16 +364,32 @@ class Section:
         
         if self.section_type == "shortest":
             weights = ds_IsD["edge_length"]
+        
         elif self.section_type == "isolat":
-            raise NotImplementedError("section type requested is not implemented")
+            if self.station_a.target_station.target_lat != self.station_b.target_station.target_lat:
+                target_lat_contour = (self.station_a.target_station.target_lat + self.station_b.target_station.target_lat) / 2
+                warnings.warn(f"The latitude of target_station_a={self.station_a.target_station.target_lat} and target_station_b={self.station_b.target_station.target_lat} are not equal. The isolat section will follow {target_lat_contour}.")
+            else:
+                target_lat_contour = self.station_a.target_station.target_lat
+            weights = self.__contour_weights(ds_IsD, target_lat_contour, ds_IsD["elat"])
+        
         elif self.section_type == "isolon":
-            raise NotImplementedError("section type requested is not implemented")
+            if self.station_a.target_station.target_lon != self.station_b.target_station.target_lon:
+                target_lon_contour = (self.station_a.target_station.target_lon + self.station_b.target_station.target_lon) / 2
+                warnings.warn(f"The longitude of target_station_a={self.station_a.target_station.target_lon} and target_station_b={self.station_b.target_station.target_lon} are not equal. The isolon section will follow {target_lon_contour}.")
+            else:
+                target_lon_contour = self.station_a.target_station.target_lon
+            weights = self.__contour_weights(ds_IsD, target_lon_contour, ds_IsD["elon"])
+        
         elif self.section_type == "great circle":
             weights = self.__great_circle_weights(ds_IsD)
+        
         elif self.section_type == "lat lon straight line":
             weights = self.__lat_lon_as_cartesian_weights(ds_IsD)
+        
         elif self.section_type == "contour":
             weights = self.__contour_weights(ds_IsD, contour_target, contour_data)
+        
         else:
             raise NotImplementedError("section type requested is not implemented")
 
@@ -500,7 +533,15 @@ class CombinedSection(Section):
         for section in section_list[1:]:
             next_vertex_path = section.vertex_path.isel(step_in_path_v=slice(1, None))
             vertex_paths.append(next_vertex_path)
+
+        ## make step_in_path_v unique again before stitching, then revert
+        _vertex_paths = vertex_paths.copy()
+        vertex_paths = []
+        for vp in _vertex_paths:
+            vp["step_in_path_v"] = vp.values
+            vertex_paths.append(vp)
         self.vertex_path = xr.concat(vertex_paths, dim="step_in_path_v")
+        self.vertex_path["step_in_path_v"] = np.arange(self.vertex_path.sizes["step_in_path_v"])
         
         # Get the edge paths from the vertex path
         # (We recalculate this to be on the safe side)
