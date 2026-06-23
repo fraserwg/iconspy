@@ -123,6 +123,8 @@ def vertex_path_to_edge_path(ds_IsD, vertex_path):
     edge_path = mode_xr(combined_edges.where(combined_edges != -1)).astype("int32")
     edge_path_xr = ds_IsD["edge"].sel(edge=edge_path)
     edge_path_xr = edge_path_xr.rename(step_in_path_v="step_in_path")
+    edge_path_xr["step_in_path"] = np.arange(edge_path_xr.sizes["step_in_path"])
+    edge_path_xr = edge_path_xr.drop_vars(["edge"])
     return edge_path_xr
 
 
@@ -436,6 +438,10 @@ def convert_tgrid_data(ds_tgrid, pyic_kwargs=None):
         }
     )
     
+    if "uuidOfHGrid" in ds_tgrid.attrs:
+        ds_IsD = ds_IsD.assign_attrs({"uuidOfHGrid": ds_tgrid.attrs["uuidOfHGrid"]})
+    else:
+        ds_IsD = ds_IsD.assign_attrs({"uuidOfHGrid": "None"})
     
     ds_IsD.attrs["IsD_compatible_flag"] = True
     
