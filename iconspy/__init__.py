@@ -2,7 +2,7 @@
 from importlib.metadata import version, PackageNotFoundError
 
 try:
-    __version__ = version("your-package-name")
+    __version__ = version("iconspy")
 except PackageNotFoundError:
     __version__ = "0.0.0"  # fallback for local/dev usage
 
