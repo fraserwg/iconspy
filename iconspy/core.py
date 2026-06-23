@@ -283,8 +283,7 @@ class Section:
     def __repr__(self):
         return f"Section({self.name}, {self.station_a.name}, {self.station_b.name}, {self.section_type})"
 
-    def to_ispy_section(self, fpath, dryrun=False):
-        print(f"Output will be saved to {fpath}")
+    def to_ispy_section(self, fpath=None):
         ds_path = xr.Dataset()
         ds_path["edge_path"] = self.edge_path
         ds_path["vertex_path"] = self.vertex_path
@@ -296,9 +295,8 @@ class Section:
         ds_path.attrs["ispy version"] = __version__
         ds_path.attrs["uuidOfHGrid"] = self._uuidOfHGrid
 
-        if dryrun:
-            print("Not saving as dryrun=True")
-        else:
+        if fpath is not None:
+            print(f"Output being saved to {fpath}")
             ds_path.to_netcdf(fpath)
 
         return ds_path
@@ -558,7 +556,8 @@ class Region:
     def __init__(self, name, section_list, ds_IsD, test=False, manual_order=False):
         self.name = _Name(name)
         self.section_list = None
-        
+        self._uuidOfHGrid = ds_IsD.attrs["uuidOfHGrid"]
+
         _assert_IsD_compatible(ds_IsD)
         
         # Order the sections provided
@@ -576,7 +575,7 @@ class Region:
             self.edge_circuit = vertex_path_to_edge_path(ds_IsD, self.vertex_circuit)
             self.path_orientation = orientation_along_path(ds_IsD, self.vertex_circuit, self.edge_circuit)
             self.contained_cells = self.__calculate_contained_cells(ds_IsD)
-         
+    
     
     def __repr__(self):
         return f"Region({self.name}, {self.section_list})"
@@ -586,8 +585,7 @@ class Region:
         raise NotImplementedError("Method not yet implemented")
 
 
-    def to_ispy_section(self, fpath, dryrun=False):
-        print(f"Output will be saved to {fpath}")
+    def to_ispy_section(self, fpath=None):
             
         ds_path = xr.Dataset()
         ds_path["edge_path"] = self.edge_circuit
@@ -595,10 +593,11 @@ class Region:
         ds_path["path_orientation"] = self.path_orientation
         ds_path["contained_cells"] = self.contained_cells
         ds_path.attrs["date"] = str(datetime.datetime.now())[:19]
-
-        if dryrun:
-            print("Not saving as dryrun=True")
-        else:
+        ds_path.attrs["ispy version"] = __version__
+        ds_path.attrs["uuidOfHGrid"] = self._uuidOfHGrid
+        
+        if fpath is not None:
+            print(f"Output will be saved to {fpath}")
             ds_path.to_netcdf(fpath)
 
         return ds_path
