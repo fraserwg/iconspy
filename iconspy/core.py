@@ -335,7 +335,7 @@ class Section:
         or_list = np.zeros((ie_list.size))
         for nn in range(ie_list.size):
             iel = ds_IsD.edges_of_vertex[iv_list[nn],:]==ie_list[nn]
-            or_list[nn] = ds_IsD.edge_orientation[iv_list[nn], iel]
+            or_list[nn] = ds_IsD.edge_orientation[iv_list[nn], iel].item()
             
         orientation = xr.ones_like(self.edge_path) * or_list
         
@@ -547,12 +547,12 @@ class CombinedSection(Section):
         # Get the edge paths from the vertex path
         # (We recalculate this to be on the safe side)
         self.edge_path = vertex_path_to_edge_path(ds_IsD, self.vertex_path)
-        self.set_pyic_orientation_along_path(ds_IsD)
         
         # Get the new vertex coordinates from the vertex path
         self.vlon = ds_IsD["vlon"].sel(vertex=self.vertex_path)
         self.vlat = ds_IsD["vlat"].sel(vertex=self.vertex_path)   
 
+        self.set_pyic_orientation_along_path(ds_IsD)
 
 
 class Region:
