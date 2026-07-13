@@ -19,6 +19,34 @@ def test_ModelStation(ispy_grid, boundary_target_station, wet_target_station):
     b = wet_target_station.to_model_station(ds_IsD)
     assert isinstance(b, WetModelStation)
     
+    
+def test_Section(ispy_grid):
+    ds_IsD = ispy_grid
+    
+    target_sw_corner = TargetStation("SW Corner", -92.592, -23.219, boundary=False)
+    target_se_corner = TargetStation("SE Corner", -70.285, -18.491, boundary=True)
+    
+    model_sw_corner = target_sw_corner.to_model_station(ds_IsD)
+    model_se_corner = target_se_corner.to_model_station(ds_IsD)
+    
+    # Great circle
+    southern_edge_great_circle = Section(
+        "Southern Edge (great circle)",
+        model_se_corner,
+        model_sw_corner,
+        ds_IsD,
+        section_type="great circle",
+    )
+    
+    # Shortest path
+    southern_edge_shortest = Section(
+        "Southern Edge (shortest)",
+        model_se_corner,
+        model_sw_corner,
+        ds_IsD,
+        section_type="shortest",
+    )
+
 
 def test_region(ispy_grid):
     pass
