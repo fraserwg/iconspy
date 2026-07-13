@@ -6,13 +6,10 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import numpy as np
 import xarray as xr
-import cartopy.crs as ccrs
 from .balltree import (
     IspyBoundaryBallTree,
     IspyWetBallTree,
 )
-
-lambert_greenland = ccrs.LambertConformal(central_longitude=-15, standard_parallels=(62, 78))
 
 def create_boundary_connectivity_matrix(ds_IsD, weight_type="distance"):
     i = ds_IsD["edge_vertices"].isel(nv_e=0)
