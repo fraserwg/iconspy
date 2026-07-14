@@ -290,13 +290,18 @@ class Section:
         ds_path["vertex_path"] = self.vertex_path
         ds_path["path_orientation"] = self.edge_orientation
         
+        try:
+            user = os.getlogin()
+        except:
+            user = "unknown"
+        
         ds_path = ds_path.assign_attrs(
             {            
                 "date": str(datetime.datetime.now())[:19],
                 "ispy version": __version__,
                 "uuidOfHGrid": self._uuidOfHGrid,
                 "section name": str(self.name),
-                "Created by": os.getlogin(),
+                "Created by": user,
             }
         ).assign_attrs(attrs)
 
