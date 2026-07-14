@@ -81,7 +81,7 @@ include = ["iconspy", "iconspy.tests"]
 
 [tool.pytest.ini_options]
 addopts = "--nbval-lax"
-testpaths = ["iconspy/tests", "examples/quickstart.ipynb", "examples/rapid-26N.ipynb"]
+testpaths = ["iconspy/tests", "examples/quickstart.ipynb", "examples/rapid-26N.ipynb", "examples/OSNAP.ipynb"]
 
 [project.urls]
 Homepage = "https://github.com/eerie-project/iconspy"
