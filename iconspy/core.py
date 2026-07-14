@@ -1,3 +1,4 @@
+import os
 import xarray as xr
 import numpy as np
 import warnings
@@ -295,6 +296,7 @@ class Section:
                 "ispy version": __version__,
                 "uuidOfHGrid": self._uuidOfHGrid,
                 "section name": str(self.name),
+                "Created by": os.getlogin(),
             }
         ).assign_attrs(attrs)
 
