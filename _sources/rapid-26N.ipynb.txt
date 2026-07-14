@@ -11,12 +11,11 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 2,
+   "execution_count": null,
    "id": "c8360f55",
    "metadata": {},
    "outputs": [],
    "source": [
-    "import os\n",
     "from pathlib import Path\n",
     "import matplotlib.pyplot as plt\n",
     "import cartopy.crs as ccrs\n",

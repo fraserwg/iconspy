@@ -13,4 +13,5 @@
    installation
    quickstart
    rapid-26N
+   OSNAP
    api
