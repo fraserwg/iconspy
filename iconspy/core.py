@@ -549,6 +549,7 @@ class _ReconstructedSection(Section):
         self.edge_orientation = edge_orientation
         self.vlon = ds_IsD["vlon"].sel(vertex=self.vertex_path)
         self.vlat = ds_IsD["vlat"].sel(vertex=self.vertex_path)
+        self._uuidOfHGrid = ds_IsD.attrs["uuidOfHGrid"]
 
     def __repr__(self):
         return f"ReconstructedSection({self.name}, {self.station_a.name}, {self.station_b.name}, {self.section_type})"
@@ -654,13 +655,19 @@ class Region:
         ds_path["vertex_path"] = self.vertex_circuit
         ds_path["path_orientation"] = self.path_orientation
         ds_path["contained_cells"] = self.contained_cells
-        
+
+        try:
+            user = os.getlogin()
+        except:
+            user = "unknown"
+
         ds_path = ds_path.assign_attrs(
             {            
                 "date": str(datetime.datetime.now())[:19],
                 "ispy version": __version__,
                 "uuidOfHGrid": self._uuidOfHGrid,
                 "section name": str(self.name),
+                "Created by": user,
             }
         ).assign_attrs(attrs)
         
@@ -725,7 +732,7 @@ class Region:
 
         # Convert to xarray objects
         vertex_path_xr = ds_IsD["vertex"].sel(vertex=vertex_circuit)
-        vertex_path_xr = vertex_path_xr.assign_coords(step_in_path=("vertex", np.arange(vertex_circuit.size))).swap_dims(vertex="step_in_path_v")
+        vertex_path_xr = vertex_path_xr.assign_coords(step_in_path_v=("vertex", np.arange(vertex_circuit.size))).swap_dims(vertex="step_in_path_v")
         
         return vertex_path_xr
 
@@ -804,9 +811,16 @@ class Region:
 
     def extract_sections_from_region(self, ds_IsD):
         reconstructed_section_dict = OrderedDict()
-        for section in self.section_list:
-            amended_vertex_path = self.vertex_circuit.isel(
-                step_in_path_v=np.isin(self.vertex_circuit, section.vertex_path)
+        for i, section in enumerate(self.section_list):
+            if i == 0:
+                vertex_circuit = self.vertex_circuit.isel(step_in_path_v=slice(0, -1))
+            elif i == len(self.section_list) - 1:
+                vertex_circuit = self.vertex_circuit.isel(step_in_path_v=slice(1, None))
+            else:
+                vertex_circuit = self.vertex_circuit
+            
+            amended_vertex_path = vertex_circuit.isel(
+                step_in_path_v=np.isin(vertex_circuit, section.vertex_path)
             )
     
             edge_path_mask = np.isin(self.edge_circuit, section.edge_path)
