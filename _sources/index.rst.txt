@@ -12,4 +12,5 @@
 
    installation
    quickstart
+   rapid-26N
    api
