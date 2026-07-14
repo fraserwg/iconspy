@@ -10,20 +10,20 @@ def test_IspyBoundaryBallTree(ispy_grid):
 
     lat_lon_idx = [
         # Random points
-        [3.81, -49.84, 2749],
-        [-20, 0, 4325],
+        [3.81, -49.84, 2846],
+        [-20, 0, 4426],
         
         # Point near the dateline
-        [0, 180, 5181],
-        [0, -180, 5181],
+        [0, 180, 4028],
+        [0, -180, 4028],
         
         # Check positive and negative longitudes work
-        [0, 270, 4661],
-        [0, -90, 4661],
+        [0, 270, 4761],
+        [0, -90, 4761],
         
         # North Pole
-        [90, 0, 977],
-        [90, 160, 977],
+        [90, 0, 1038],
+        [90, 160, 1038],
     ]
 
     for target_lat, target_lon, expected_vertex in lat_lon_idx:
@@ -39,20 +39,20 @@ def test_find_boundary_vertex(ispy_grid):
 
     lat_lon_idx = [
         # Random points
-        [3.81, -49.84, 2749],
-        [-20, 0, 4325],
+        [3.81, -49.84, 2846],
+        [-20, 0, 4426],
         
         # Point near the dateline
-        [0, 180, 5181],
-        [0, -180, 5181],
+        [0, 180, 4028],
+        [0, -180, 4028],
         
         # Check positive and negative longitudes work
-        [0, 270, 4661],
-        [0, -90, 4661],
+        [0, 270, 4761],
+        [0, -90, 4761],
         
         # North Pole
-        [90, 0, 977],
-        [90, 160, 977],
+        [90, 0, 1038],
+        [90, 160, 1038],
     ]
 
     for target_lat, target_lon, expected_vertex in lat_lon_idx:
@@ -71,20 +71,20 @@ def test_IspyWetBallTree(ispy_grid):
 
     lat_lon_idx = [
         # Random points
-        [0, -40, 3537],
-        [-20, 0, 4460],
+        [0, -40, 3637],
+        [-20, 0, 4561],
         
         # Point near the dateline
-        [0, 180, 3221],
-        [0, -180, 3221],
+        [0, 180, 3321],
+        [0, -180, 3321],
         
         # Check positive and negative longitudes work
-        [0, 270, 3367],
-        [0, -90, 3367],
+        [0, 270, 3467],
+        [0, -90, 3467],
         
         # North Pole
-        [90, 0, 57],
-        [90, 160, 57],
+        [90, 0, 55],
+        [90, 160, 55],
     ]    
 
     for target_lat, target_lon, expected_vertex in lat_lon_idx:
@@ -97,20 +97,20 @@ def test_find_wet_vertex(ispy_grid):
 
     lat_lon_idx = [
         # Random points
-        [0, -40, 3537],
-        [-20, 0, 4460],
+        [0, -40, 3637],
+        [-20, 0, 4561],
         
         # Point near the dateline
-        [0, 180, 3221],
-        [0, -180, 3221],
+        [0, 180, 3321],
+        [0, -180, 3321],
         
         # Check positive and negative longitudes work
-        [0, 270, 3367],
-        [0, -90, 3367],
+        [0, 270, 3467],
+        [0, -90, 3467],
         
         # North Pole
-        [90, 0, 57],
-        [90, 160, 57],
+        [90, 0, 55],
+        [90, 160, 55],
     ]    
     
     for target_lat, target_lon, expected_vertex in lat_lon_idx:
