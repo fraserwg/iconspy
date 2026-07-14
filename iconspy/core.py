@@ -91,10 +91,12 @@ class TargetStation:
             A model station object representing the closest model grid point
             to the target station
         """
-        if self.boundary:
+        if self.boundary == True:
             station = self.to_boundary_model_station(ds_IsD)
-        else:
+        elif self.boundary == False:
             station = self.to_wet_model_station(ds_IsD)
+        else:
+            station = self.to_any_model_station(ds_IsD)
         return station
     
     def to_boundary_model_station(self, ds_IsD):
@@ -131,6 +133,24 @@ class TargetStation:
             to the target station
         """
         return WetModelStation(self, ds_IsD)
+    
+    
+    def to_any_model_station(self, ds_IsD):
+        """Converts the target station to a model station regardless of wet/dry
+
+        Parameters
+        ----------
+        ds_IsD : xarray.Dataset
+            A dataset contining the model grid information, having been
+            operated on by iconspy.convert_tgrid_data()
+
+        Returns
+        -------
+        iconspy.WetModelStation
+            A model station object representing the closest wet model grid point
+            to the target station
+        """
+        return ModelStation(self, ds_IsD)
 
 
     def plot(self, ax=None, proj=None, extent=None,
@@ -207,6 +227,29 @@ class __ModelStation:
             marker="o",
             label=self.name,
         )
+
+
+class ModelStation(__ModelStation):
+    def __init__(self, target_station, ds_IsD):
+        _assert_IsD_compatible(ds_IsD)
+        
+        if target_station.boundary == True:
+            raise ValueError("target station indicates the model station should be on a boundary")
+        super().__init__(target_station)
+
+        self.vertex = find_wet_vertex(
+            ds_IsD,
+            lon=self.target_station.target_lon,
+            lat=self.target_station.target_lat,
+            assert_wet=False
+        )
+        
+        self.model_lon = float(ds_IsD["vlon"].sel(vertex=self.vertex).values)
+        self.model_lat = float(ds_IsD["vlat"].sel(vertex=self.vertex).values)
+        self._uuidOfHGrid = ds_IsD.attrs["uuidOfHGrid"]
+
+    def __repr__(self):
+        return f"_ModelStation({self.name})"
 
 
 class WetModelStation(__ModelStation):
@@ -514,6 +557,15 @@ class _ReconstructedSection(Section):
 class CombinedSection(Section):
     def __init__(self, name, section_list, ds_IsD):
         # Want to be able to combine two sections into one.
+
+        # Check the sections all have the same grid
+        self._uuidOfHGrid = section_list[0]._uuidOfHGrid
+        for i, section in enumerate(section_list):
+            try:
+                assert section._uuidOfHGrid == self._uuidOfHGrid
+            except AssertionError:
+                raise ValueError(f"Section {section.name} at postion {i} in `section_list` has a different grid to the first section in the list")
+            
 
         # Check the sections connect...
         for i in range(len(section_list) - 1):
