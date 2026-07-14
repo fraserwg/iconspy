@@ -53,6 +53,7 @@ classifiers = [
 dev = [
     # Testing
     "pytest",
+    "nbval",
 
     # Documentation
     "sphinx",
@@ -78,8 +79,12 @@ dev = [
 [tool.setuptools.packages.find]
 include = ["iconspy"]
 
+[tool.pytest.ini_options]
+addopts = "--nbval-lax"
+testpaths = ["iconspy/tests", "examples/quickstart.ipynb"]
+
 [project.urls]
-Homepage = "https://github.com/fraserwg/iconspy"
-Documentation = "https://fraserwg.github.io/iconspy/"
-Source = "https://github.com/fraserwg/iconspy"
-Tracker = "https://github.com/fraserwg/iconspy/issues"
+Homepage = "https://github.com/eerie-project/iconspy"
+Documentation = "https://eerie-project.github.io/iconspy/"
+Source = "https://github.com/eerie-project/iconspy"
+Tracker = "https://github.com/eerie-project/iconspy/issues"

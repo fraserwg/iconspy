@@ -18,6 +18,7 @@ dependencies:
   - pytest
   - netcdf4
   - requests
+  - nbval
   # documentation
   - sphinx
   - sphinx_rtd_theme
@@ -48,7 +49,6 @@ dependencies:
   - bottleneck
   - dask-mpi
   - distributed
-  - requests
   - aiohttp
   - sparse
   - h5netcdf
