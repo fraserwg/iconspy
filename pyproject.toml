@@ -77,7 +77,7 @@ dev = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["iconspy"]
+include = ["iconspy", "iconspy.tests"]
 
 [tool.pytest.ini_options]
 addopts = "--nbval-lax"
