@@ -321,7 +321,7 @@ class Section:
 
         self.edge_path = vertex_path_to_edge_path(ds_IsD, self.vertex_path)
 
-        self.set_pyic_orientation_along_path(ds_IsD)
+        self.edge_orientation = self._get_pyic_orientation_along_path(ds_IsD)
 
 
     def __repr__(self):
@@ -354,7 +354,7 @@ class Section:
 
         return ds_path
 
-    def set_pyic_orientation_along_path(self, ds_IsD):
+    def _get_pyic_orientation_along_path(self, ds_IsD):
         """Calculate the orientation of the edges along the path
         
         Add the edge orientation object to the section object using code from
@@ -395,7 +395,7 @@ class Section:
             }
         )
         
-        self.edge_orientation = orientation
+        return orientation
 
     def plot(self, ax=None, proj=None, extent=None,
              coastlines=True, gridlines=True,
@@ -612,7 +612,7 @@ class CombinedSection(Section):
         self.vlon = ds_IsD["vlon"].sel(vertex=self.vertex_path)
         self.vlat = ds_IsD["vlat"].sel(vertex=self.vertex_path)   
 
-        self.set_pyic_orientation_along_path(ds_IsD)
+        self.edge_orientation = self._get_pyic_orientation_along_path(ds_IsD)
 
 
 class Region:
