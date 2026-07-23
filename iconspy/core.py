@@ -55,7 +55,7 @@ class TargetStation:
         
     Attributes
     ----------
-    name : str
+    name : _Name
         Name of the target station
     target_lon : float
         Longitude of the target station
@@ -92,14 +92,14 @@ class TargetStation:
             to the target station
         """
         if self.boundary == True:
-            station = self.to_boundary_model_station(ds_IsD)
+            station = self._to_boundary_model_station(ds_IsD)
         elif self.boundary == False:
-            station = self.to_wet_model_station(ds_IsD)
+            station = self._to_wet_model_station(ds_IsD)
         else:
-            station = self.to_any_model_station(ds_IsD)
+            station = self._to_any_model_station(ds_IsD)
         return station
     
-    def to_boundary_model_station(self, ds_IsD):
+    def _to_boundary_model_station(self, ds_IsD):
         """Converts the target station to a dry model station regardless of boundary
 
         Parameters
@@ -117,7 +117,7 @@ class TargetStation:
         return BoundaryModelStation(self, ds_IsD)
 
 
-    def to_wet_model_station(self, ds_IsD):
+    def _to_wet_model_station(self, ds_IsD):
         """Converts the target station to a wet model station regardless of boundary
 
         Parameters
@@ -135,7 +135,7 @@ class TargetStation:
         return WetModelStation(self, ds_IsD)
     
     
-    def to_any_model_station(self, ds_IsD):
+    def _to_any_model_station(self, ds_IsD):
         """Converts the target station to a model station regardless of wet/dry
 
         Parameters
@@ -233,7 +233,7 @@ class ModelStation(__ModelStation):
     def __init__(self, target_station, ds_IsD):
         _assert_IsD_compatible(ds_IsD)
         
-        if target_station.boundary == True:
+        if target_station.boundary is not None:
             raise ValueError("target station indicates the model station should be on a boundary")
         super().__init__(target_station)
 
@@ -256,7 +256,7 @@ class WetModelStation(__ModelStation):
     def __init__(self, target_station, ds_IsD):
         _assert_IsD_compatible(ds_IsD)
         
-        if target_station.boundary == True:
+        if target_station.boundary is not False:
             raise ValueError("target station indicates the model station should be on a boundary")
         super().__init__(target_station)
 
@@ -278,7 +278,7 @@ class BoundaryModelStation(__ModelStation):
     def __init__(self, target_station, ds_IsD):
         _assert_IsD_compatible(ds_IsD)
         
-        if target_station.boundary == False:
+        if target_station.boundary is not True:
             raise ValueError("target station indicates the model station should be wet")
         super().__init__(target_station)
 
