@@ -296,6 +296,40 @@ class BoundaryModelStation(__ModelStation):
 
 
 class Section:
+    """Represents a path section between two model stations on an ICON grid.
+
+    A ``Section`` computes the shortest valid path between ``model_station_a``
+    and ``model_station_b`` on the provided ``ds_IsD`` horizontal grid and
+    stores both vertex- and edge-based representations of that path.
+
+    Parameters
+    ----------
+    name : str
+        Section name.
+    model_station_a : __ModelStation
+        Start model station.
+    model_station_b : __ModelStation
+        End model station.
+    ds_IsD : xarray.Dataset
+        Ispy grid dataset.
+    section_type : str, optional
+        Section construction mode. Can be any of ['shortest', 'isolat', 'isolon', 'great circle', 'rhumb line', 'contour'].
+    contour_target : float, optional
+        Target contour value used when ``section_type == "contour"``.
+    contour_data : xarray.DataArray, optional
+        One-dimensional data over ``edge`` used for contour-based path
+        construction.
+
+    Attributes
+    ----------
+    vertex_path : xarray.DataArray
+        Vertex indices along the section path.
+    edge_path : xarray.DataArray
+        Edge indices along the section path.
+    edge_orientation : xarray.DataArray
+        Orientation/sign convention for each edge along the path.
+    """
+    
     def __init__(self, name, model_station_a, model_station_b, ds_IsD,
                  section_type=None, contour_target=None, contour_data=None):
 
@@ -309,6 +343,20 @@ class Section:
         self.edge_path = None
         self.edge_orientation = None
         self._uuidOfHGrid = ds_IsD.attrs["uuidOfHGrid"]
+
+        # Do some checks for contour data
+        if section_type == "contour":
+            if (contour_target is None) and (contour_data is None):
+                raise ValueError("section_type is 'contour' but no contour_target provided")
+            elif contour_data is None:
+                raise ValueError("section_type is 'contour' but no contour_data provided")
+            elif contour_target is None:
+                raise ValueError("section_type is 'contour' but no contour_target provided")
+            if set(contour_data.dims) != {"edge"}:
+                raise ValueError("contour_data should be a 1D xarray.DataArray with dimension 'edge'")
+        else:
+            if (contour_target is not None) or (contour_data is not None):
+                warnings.warn("section_type is not 'contour' but contour_target and/or contour_data provided. Data will be ignored.")
 
         vertex_graph = self.__compute_vertex_graph(ds_IsD, contour_target, contour_data)
 
@@ -435,14 +483,16 @@ class Section:
         elif self.section_type == "great circle":
             weights = self.__great_circle_weights(ds_IsD)
         
-        elif self.section_type == "lat lon straight line":
+        elif (self.section_type == "rhumb line"):
             weights = self.__lat_lon_as_cartesian_weights(ds_IsD)
         
         elif self.section_type == "contour":
             weights = self.__contour_weights(ds_IsD, contour_target, contour_data)
         
         else:
-            raise NotImplementedError("section type requested is not implemented")
+            raise NotImplementedError(
+                "Section type requested is not implemented. Should be one of ['shortest', 'isolat', 'isolon', 'great circle', 'rhumb line', 'contour']"
+            )
 
         vertex_graph = create_connectivity_matrix(ds_IsD, weights)
 

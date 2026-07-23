@@ -111,13 +111,36 @@ def test_ModelStation(ispy_grid, boundary_target_station, wet_target_station, an
     
 
 def test_Section(ispy_grid):
-    ds_IsD = ispy_grid
+    # Attributes to test
+    ## name, station_a, station_b
+    ## section_type
+    ## vertex_path, edge_path, edge_orientation, vlon, vlat
+    ## _uuidOfHGrid
     
+    # Methods to test
+    ## to_ispy_section
+    ## reverse_section
+    
+    # Section types to test
+    ## shortest, isolat, isolon, great circle, rhumb line, contour
+    ## isolat and isolon warnings on random sections
+    ## Trigger of not implemented section type
+    
+    # Should we test the hidden weight functions too?
+    
+    # Test what happens if we use the same station for both ends
+    
+    
+    ds_IsD = ispy_grid
     target_sw_corner = TargetStation("SW Corner", -92.592, -23.219, boundary=False)
     target_se_corner = TargetStation("SE Corner", -70.285, -18.491, boundary=True)
+    target_b_isolat = TargetStation("Isolat Corner", -81.0, -23.219, boundary=False)
+    target_b_isolon = TargetStation("Isolon Corner", -92.592, -10, boundary=False)
     
     model_sw_corner = target_sw_corner.to_model_station(ds_IsD)
     model_se_corner = target_se_corner.to_model_station(ds_IsD)
+    model_b_isolat = target_b_isolat.to_model_station(ds_IsD)
+    model_b_isolon = target_b_isolon.to_model_station(ds_IsD)
     
     # Great circle
     southern_edge_great_circle = Section(
@@ -128,7 +151,7 @@ def test_Section(ispy_grid):
         section_type="great circle",
     )
     
-    # Shortest path
+    # Shortest
     southern_edge_shortest = Section(
         "Southern Edge (shortest)",
         model_se_corner,
@@ -136,7 +159,170 @@ def test_Section(ispy_grid):
         ds_IsD,
         section_type="shortest",
     )
+    assert str(southern_edge_shortest.name) == "Southern Edge (shortest)"
+    assert southern_edge_shortest.station_a == model_se_corner
+    assert southern_edge_shortest.station_b == model_sw_corner
+    assert southern_edge_shortest.section_type == "shortest"
+    assert np.sum(southern_edge_shortest.vertex_path) == 55795
+    assert np.sum(southern_edge_shortest.edge_path) == 143159
+    assert np.sum(southern_edge_shortest.edge_orientation) == -1
+    assert np.isclose(np.sum(southern_edge_shortest.vlon), -992.25523174)
+    assert np.isclose(np.sum(southern_edge_shortest.vlat), -240.1950428)
+    assert southern_edge_shortest._uuidOfHGrid == ds_IsD.attrs["uuidOfHGrid"]
+    
+    # Rhumb line
+    southern_edge_rhumb_line = Section(
+        "Southern Edge (rhumb line)",
+        model_se_corner,
+        model_sw_corner,
+        ds_IsD,
+        section_type="rhumb line",
+    )
+    assert southern_edge_rhumb_line.section_type == "rhumb line"
+    assert np.sum(southern_edge_rhumb_line.vertex_path) == 65261
+    assert np.sum(southern_edge_rhumb_line.edge_path) == 169617
+    assert np.sum(southern_edge_rhumb_line.edge_orientation) == 1
+    assert np.isclose(np.sum(southern_edge_rhumb_line.vlon), -1138.66188397)
+    assert np.isclose(np.sum(southern_edge_rhumb_line.vlat), -305.57724096)
 
+    # Contour
+    southern_edge_contour = Section(
+        "Southern Edge (contour)",
+        model_se_corner,
+        model_sw_corner,
+        ds_IsD,
+        section_type="contour",
+        contour_target=20.0,
+        contour_data=ds_IsD["elat"]
+    )
+    assert southern_edge_contour.section_type == "contour"
+    assert np.sum(southern_edge_contour.vertex_path) == 55795
+    assert np.sum(southern_edge_contour.edge_path) == 143159
+    assert np.sum(southern_edge_contour.edge_orientation) == -1
+    assert np.isclose(np.sum(southern_edge_contour.vlon), -992.25523174)
+    assert np.isclose(np.sum(southern_edge_contour.vlat), -240.1950428)
+    
+    ## Contour warnings and errors
+    with pytest.raises(ValueError):
+        _ = Section(
+            "contour no data or target",
+            model_se_corner,
+            model_sw_corner,
+            ds_IsD,
+            section_type="contour",
+        )
+    with pytest.raises(ValueError):
+        _ = Section(
+            "contour no target",
+            model_se_corner,
+            model_sw_corner,
+            ds_IsD,
+            section_type="contour",
+            contour_data=ds_IsD["elat"],
+        )
+    with pytest.raises(ValueError):
+        _ = Section(
+            "contour no data",
+            model_se_corner,
+            model_sw_corner,
+            ds_IsD,
+            section_type="contour",
+            contour_target=20.0,
+        )
+    with pytest.raises(ValueError):
+        _ = Section(
+            "contour wrong shape data",
+            model_se_corner,
+            model_sw_corner,
+            ds_IsD,
+            section_type="contour",
+            contour_target=20.0,
+            contour_data=ds_IsD["vlat"]
+        )
+    with pytest.warns(UserWarning):
+        _ = Section(
+            "not contour but data provided",
+            model_se_corner,
+            model_sw_corner,
+            ds_IsD,
+            section_type="rhumb line",
+            contour_target=1000.0,
+            contour_data=ds_IsD["elat"]
+        )
 
+    # Isolat
+    section_isolat = Section(
+        "Isolat",
+        model_sw_corner,
+        model_b_isolat,
+        ds_IsD,
+        section_type="isolat",
+    )
+    assert section_isolat.section_type == "isolat"
+    assert np.sum(section_isolat.vertex_path) == 36812
+    assert np.sum(section_isolat.edge_path) == 90122
+    assert np.sum(section_isolat.edge_orientation) == 3
+    assert np.isclose(np.sum(section_isolat.vlon), -696.0658456720239)
+    assert np.isclose(np.sum(section_isolat.vlat), -185.2302160361028)
+    
+    ## Isolat warning
+    with pytest.warns(UserWarning):
+        southern_edge_isolat_warn = Section(
+            "Southern Edge (shortest)",
+            model_se_corner,
+            model_sw_corner,
+            ds_IsD,
+            section_type="isolat",
+        )
+
+    # Isolon
+    section_isolon = Section(
+        "Isolon",
+        model_sw_corner,
+        model_b_isolon,
+        ds_IsD,
+        section_type="isolon",
+    )
+    assert section_isolon.section_type == "isolon"
+    assert np.sum(section_isolon.vertex_path) == 37010
+    assert np.sum(section_isolon.edge_path) == 90603
+    assert np.sum(section_isolon.edge_orientation) == -3
+    assert np.isclose(np.sum(section_isolon.vlon), -740.8854456901096)
+    assert np.isclose(np.sum(section_isolon.vlat), -138.03104997609708)
+    
+    ## Isolon warning
+    with pytest.warns(UserWarning):
+        southern_edge_isolon_warn = Section(
+            "Southern Edge (shortest)",
+            model_se_corner,
+            model_sw_corner,
+            ds_IsD,
+            section_type="isolon",
+        )
+        
+    with pytest.raises(NotImplementedError):
+        _ = Section(
+            "not implemented section type",
+            model_se_corner,
+            model_sw_corner,
+            ds_IsD,
+            section_type="something weird",
+        )
+
+    ## Check methods
+    ### Check reverse_section method
+    southern_edge_shortest_twice_reversed = southern_edge_shortest.reverse_section().reverse_section()
+    assert southern_edge_shortest_twice_reversed.station_a == southern_edge_shortest.station_a
+    assert southern_edge_shortest_twice_reversed.station_b == southern_edge_shortest.station_b
+    assert np.all(southern_edge_shortest_twice_reversed.vertex_path == southern_edge_shortest.vertex_path)
+    assert np.all(southern_edge_shortest_twice_reversed.edge_path == southern_edge_shortest.edge_path)
+    assert np.all(southern_edge_shortest_twice_reversed.edge_orientation == southern_edge_shortest.edge_orientation)
+    assert np.all(southern_edge_shortest_twice_reversed.vlon == southern_edge_shortest.vlon)
+    assert np.all(southern_edge_shortest_twice_reversed.vlat == southern_edge_shortest.vlat)
+    assert southern_edge_shortest_twice_reversed._uuidOfHGrid == southern_edge_shortest._uuidOfHGrid
+    
+    ### Check to_ispy_section method
+    southern_edge_shortest_ispy_section = southern_edge_shortest.to_ispy_section()
+    
 def test_region(ispy_grid):
     pass
