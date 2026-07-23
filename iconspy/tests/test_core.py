@@ -110,33 +110,21 @@ def test_ModelStation(ispy_grid, boundary_target_station, wet_target_station, an
 
     
 
-def test_Section(ispy_grid):
-    # Attributes to test
-    ## name, station_a, station_b
-    ## section_type
-    ## vertex_path, edge_path, edge_orientation, vlon, vlat
-    ## _uuidOfHGrid
-    
-    # Methods to test
+def test_Section(ispy_grid):    
+    # Methods still to test
     ## to_ispy_section
-    ## reverse_section
-    
-    # Section types to test
-    ## shortest, isolat, isolon, great circle, rhumb line, contour
-    ## isolat and isolon warnings on random sections
-    ## Trigger of not implemented section type
-    
-    # Should we test the hidden weight functions too?
+    ## weight functions (hidden)
+    # Should we test the hidden weight functions too? Their testing is implicit
+    # in the section tests. But maybe we should test the types they return?
     
     # Test what happens if we use the same station for both ends
     
-    
+    # Prepare some model stations
     ds_IsD = ispy_grid
     target_sw_corner = TargetStation("SW Corner", -92.592, -23.219, boundary=False)
     target_se_corner = TargetStation("SE Corner", -70.285, -18.491, boundary=True)
     target_b_isolat = TargetStation("Isolat Corner", -81.0, -23.219, boundary=False)
     target_b_isolon = TargetStation("Isolon Corner", -92.592, -10, boundary=False)
-    
     model_sw_corner = target_sw_corner.to_model_station(ds_IsD)
     model_se_corner = target_se_corner.to_model_station(ds_IsD)
     model_b_isolat = target_b_isolat.to_model_station(ds_IsD)
@@ -159,9 +147,11 @@ def test_Section(ispy_grid):
         ds_IsD,
         section_type="shortest",
     )
+    ## Only need to test these attributes once
     assert str(southern_edge_shortest.name) == "Southern Edge (shortest)"
     assert southern_edge_shortest.station_a == model_se_corner
     assert southern_edge_shortest.station_b == model_sw_corner
+    ## Check these attributes on each section type
     assert southern_edge_shortest.section_type == "shortest"
     assert np.sum(southern_edge_shortest.vertex_path) == 55795
     assert np.sum(southern_edge_shortest.edge_path) == 143159
