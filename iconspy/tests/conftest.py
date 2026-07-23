@@ -62,10 +62,13 @@ def ispy_grid(raw_grid):
 def boundary_target_station():
     return ispy.TargetStation("Fram Strait West", -14, 80)
 
-
 @pytest.fixture()
 def wet_target_station():
     return ispy.TargetStation("Fram Strait Central", 1, 80, boundary=False)
+
+@pytest.fixture()
+def any_target_station():
+    return ispy.TargetStation("Fram Strait Any", 0, 80, boundary=None)
 
 
 @pytest.fixture()
@@ -75,3 +78,7 @@ def wet_model_station(wet_target_station, ispy_grid):
 @pytest.fixture()
 def boundary_model_station(boundary_target_station, ispy_grid):
     return boundary_target_station.to_model_station(ispy_grid)
+
+@pytest.fixture()
+def any_model_station(any_target_station, ispy_grid):
+    return any_target_station.to_model_station(ispy_grid)

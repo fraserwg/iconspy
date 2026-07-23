@@ -65,16 +65,51 @@ def test_TargetStation(ispy_grid):
     with pytest.raises(ValueError):
         fram_strait_central._to_wet_model_station(ispy_grid)
 
-def test_ModelStation(ispy_grid, boundary_target_station, wet_target_station):
+def test_ModelStation(ispy_grid, boundary_target_station, wet_target_station, any_target_station):
     ds_IsD = ispy_grid
     
-    a = boundary_target_station.to_model_station(ds_IsD)
-    assert isinstance(a, BoundaryModelStation)
+    # Check any model station
+    ## Instantiation and type check
+    a = ModelStation(any_target_station, ds_IsD)
+    assert isinstance(a, ModelStation)
     
-    b = wet_target_station.to_model_station(ds_IsD)
-    assert isinstance(b, WetModelStation)
+    ## Check attributes
+    assert a.target_station == any_target_station
+    assert str(a.name) == "Fram Strait Any"
+    assert a.vertex == 1393
+    assert a.model_lon == 0.9999999999999997
+    assert a.model_lat == 80.15757345969898
+    assert a._uuidOfHGrid == "5bd948e8-ac1a-11ea-a6b1-d317264fdca9"
     
     
+    # Check boundary model station
+    ## Instantiation and type check
+    b = BoundaryModelStation(boundary_target_station, ds_IsD)
+    assert isinstance(b, BoundaryModelStation)
+    
+    ## Check attributes
+    assert b.target_station == boundary_target_station
+    assert str(b.name) == "Fram Strait West"
+    assert b.vertex == 1396
+    assert b.model_lon == -12.141179795983037
+    assert b.model_lat == 79.95366451600837
+    assert b._uuidOfHGrid == "5bd948e8-ac1a-11ea-a6b1-d317264fdca9"
+
+    # Check wet model station
+    ## Instantiation and type check
+    c = WetModelStation(wet_target_station, ds_IsD)
+    assert isinstance(c, WetModelStation)
+    
+    ## Check attributes
+    assert c.target_station == wet_target_station
+    assert str(c.name) == "Fram Strait Central"
+    assert c.vertex == 1393
+    assert c.model_lon == 0.9999999999999997
+    assert c.model_lat == 80.15757345969898
+    assert c._uuidOfHGrid == "5bd948e8-ac1a-11ea-a6b1-d317264fdca9"   
+
+    
+
 def test_Section(ispy_grid):
     ds_IsD = ispy_grid
     
