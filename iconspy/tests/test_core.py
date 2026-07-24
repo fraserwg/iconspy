@@ -453,8 +453,8 @@ def test_region(ispy_grid):
     sec_mid_se = Section("Mid to SE", model_mid, model_se, ds_IsD, section_type="shortest")
     sec_se_sw = Section("SE to SW", model_se, model_sw, ds_IsD, section_type="shortest")
 
-    # Instantiation with test=True (skips edge/orientation/cells)
-    region_test = Region("Test Region", [sec_sw_mid, sec_mid_se, sec_se_sw], ds_IsD, test=True)
+    # Instantiation
+    region_test = Region("Test Region", [sec_sw_mid, sec_mid_se, sec_se_sw], ds_IsD)
     assert isinstance(region_test, Region)
 
     ## Check attributes
@@ -462,7 +462,6 @@ def test_region(ispy_grid):
     assert region_test._uuidOfHGrid == ds_IsD.attrs["uuidOfHGrid"]
     assert len(region_test.section_list) == 3
     assert region_test.vertex_circuit.size == 21
-    assert not hasattr(region_test, "edge_circuit")
 
     # Full instantiation
     region_full = Region("Full Region", [sec_sw_mid, sec_mid_se, sec_se_sw], ds_IsD)
@@ -485,4 +484,4 @@ def test_region(ispy_grid):
     sec_ne_nw = Section("NE to NW", model_ne, model_nw, ds_IsD, section_type="shortest")
 
     with pytest.raises(ValueError):
-        Region("Disconnected", [sec_sw_mid, sec_mid_se, sec_ne_nw], ds_IsD, test=True)
+        Region("Disconnected", [sec_sw_mid, sec_mid_se, sec_ne_nw], ds_IsD)

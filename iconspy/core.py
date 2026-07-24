@@ -456,7 +456,7 @@ class Section:
             transform=ccrs.PlateCarree(),
             label=self.name,
         )
-    
+
     def __compute_vertex_graph(self, ds_IsD, contour_target=None, contour_data=None):
         _assert_IsD_compatible(ds_IsD)
         
@@ -699,7 +699,7 @@ class CombinedSection(Section):
 
 
 class Region:
-    def __init__(self, name, section_list, ds_IsD, test=False, manual_order=False):
+    def __init__(self, name, section_list, ds_IsD, manual_order=False):
         self.name = _Name(name)
         self.section_list = None
         self._uuidOfHGrid = ds_IsD.attrs["uuidOfHGrid"]
@@ -717,10 +717,9 @@ class Region:
 
         # Get the vertex, edge and orientation xr.DataArrays
         self.vertex_circuit = self.__calculate_vertex_circuit(ds_IsD)
-        if not test:
-            self.edge_circuit = vertex_path_to_edge_path(ds_IsD, self.vertex_circuit)
-            self.path_orientation = orientation_along_path(ds_IsD, self.vertex_circuit, self.edge_circuit)
-            self.contained_cells = self.__calculate_contained_cells(ds_IsD)
+        self.edge_circuit = vertex_path_to_edge_path(ds_IsD, self.vertex_circuit)
+        self.path_orientation = orientation_along_path(ds_IsD, self.vertex_circuit, self.edge_circuit)
+        self.contained_cells = self.__calculate_contained_cells(ds_IsD)
     
     
     def __repr__(self):
