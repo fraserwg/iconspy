@@ -158,15 +158,11 @@ def find_vertex_path(graph, west_vertex, east_vertex):
     vertex_path = np.array(path)
     return vertex_path
 
-def create_connectivity_matrix(ds_IsD, weights=None):
+def create_connectivity_matrix(ds_IsD, weights):
     i = ds_IsD["edge_vertices"].isel(nv_e=0).astype("int32")
     j = ds_IsD["edge_vertices"].isel(nv_e=1).astype("int32")
-    if weights is not None:
-        data = abs(weights)
-    
-    else:
-        raise NotImplementedError("The requested weighting type has not yet \
-            been implemented")
+
+    data = abs(weights)
 
     iprime = xr.concat((i, j), dim="edge")
     jprime = xr.concat((j, i), dim="edge")
