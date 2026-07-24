@@ -344,6 +344,14 @@ class Section:
         self.edge_orientation = None
         self._uuidOfHGrid = ds_IsD.attrs["uuidOfHGrid"]
 
+        if self.station_a._uuidOfHGrid != self._uuidOfHGrid:
+            raise ValueError("model_station_a is not on the same grid as ds_IsD")
+        if self.station_b._uuidOfHGrid != self._uuidOfHGrid:
+            raise ValueError("model_station_b is not on the same grid as ds_IsD")
+
+        if self.station_a.vertex == self.station_b.vertex:
+            raise ValueError("model_station_a and model_station_b are the same vertex. Cannot create a section between the same vertex.")
+
         # Do some checks for contour data
         if section_type == "contour":
             if (contour_target is None) and (contour_data is None):

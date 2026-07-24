@@ -348,6 +348,16 @@ def test_Section(ispy_grid):
             ds_IsD,
             section_type="something weird",
         )
+        
+    ## Check we produce a useful error if the stations are the same:
+    with pytest.raises(ValueError):
+        _ = Section(
+            "same station",
+            model_se_corner,
+            model_se_corner,
+            ds_IsD,
+            section_type="shortest",
+        )
 
     ## Check methods
     ### Check reverse_section method
