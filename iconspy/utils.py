@@ -218,7 +218,7 @@ def _pyicon_convert_tgrid_data(ds_tg_in):
 
     """
 
-    # make deep copy of ds_tg_in to avoid glaobal modifications if during this function call
+    # make deep copy of ds_tg_in to avoid global modifications if during this function call
     ds_tg = ds_tg_in.copy(deep=True)
 
     if "converted_tgrid" in ds_tg.attrs:
@@ -382,7 +382,7 @@ def convert_tgrid_data(ds_tgrid):
     Notes
     -----
     An iconspy dataset (ds_IsD) is similar to but distinct from a pyicon dataset (ds_IcD).
-    I suggest loading the dataset having loaded it
+    I suggest loading the dataset eagerly.
     
     Example
     -------
@@ -397,9 +397,7 @@ def convert_tgrid_data(ds_tgrid):
     if "IsD_compatible_flag" in ds_tgrid.attrs:
         if ds_tgrid.attrs["IsD_compatible_flag"] == True:
             raise ValueError(
-                "ds_tgrid has previously been converted by this function," + \
-                "applying the function again will lead to undocumented" + \
-                "behaviour."
+                "ds_tgrid has previously been converted by this function."
             )
     
     ds_IsD = _pyicon_convert_tgrid_data(ds_tgrid)
