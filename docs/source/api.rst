@@ -14,6 +14,12 @@ Target station
    
 Model stations
 --------------
+.. autoclass:: iconspy::ModelStation
+   :show-inheritance:
+   :members:
+   :undoc-members:
+
+
 .. autoclass:: iconspy::WetModelStation
    :show-inheritance:
    :members:
