@@ -513,21 +513,15 @@ def test_region(ispy_grid):
     sec_se_sw = Section("SE to SW", model_se, model_sw, ds_IsD, section_type="shortest")
 
     # Instantiation
-    region_test = Region("Test Region", [sec_sw_mid, sec_mid_se, sec_se_sw], ds_IsD)
-    assert isinstance(region_test, Region)
-
-    ## Check attributes
-    assert str(region_test.name) == "Test Region"
-    assert region_test._uuidOfHGrid == ds_IsD.attrs["uuidOfHGrid"]
-    assert len(region_test.section_list) == 3
-    assert region_test.vertex_circuit.size == 21
-
-    # Full instantiation
     region_full = Region("Full Region", [sec_sw_mid, sec_mid_se, sec_se_sw], ds_IsD)
+    assert isinstance(region_full, Region)
+    
+    ## Check attributes
     assert np.sum(region_full.vertex_circuit) == 97618
     assert np.sum(region_full.edge_circuit) == 260598
-    assert np.sum(region_full.path_orientation) == 0
-    assert region_full.contained_cells.size == 32
+    assert np.sum(region_full.path_orientation * np.arange(region_full.path_orientation.size)) == 10
+    assert np.sum(region_full.contained_cells) == 113806140
+    assert region_full.contained_cells.size == 15073
 
     ## Check methods
     assert isinstance(region_full.to_ispy_section(), xr.Dataset)

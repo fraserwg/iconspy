@@ -1,6 +1,7 @@
 import os
 import xarray as xr
 import numpy as np
+from collections import deque
 import warnings
 import cartopy.crs as ccrs
 from .utils import (
@@ -740,12 +741,61 @@ class Region:
         # Get the vertex, edge and orientation xr.DataArrays
         self.vertex_circuit = self.__calculate_vertex_circuit(ds_IsD)
         self.edge_circuit = vertex_path_to_edge_path(ds_IsD, self.vertex_circuit)
-        self.path_orientation = orientation_along_path(ds_IsD, self.vertex_circuit, self.edge_circuit)
+        # self.path_orientation = orientation_along_path(ds_IsD, self.vertex_circuit, self.edge_circuit)
+        self.path_orientation = self._get_pyic_orientation_along_path(ds_IsD)
         self.contained_cells = self.__calculate_contained_cells(ds_IsD)
     
     
+    def invert_region(self, ds_IsD):
+        inverted_section_list = self.section_list[::-1]
+        inverted_region = Region(self.name, inverted_section_list, ds_IsD)
+        return inverted_region
+    
     def __repr__(self):
         return f"Region({self.name}, {self.section_list})"
+
+    def _get_pyic_orientation_along_path(self, ds_IsD):
+        """Calculate the orientation of the edges along the path
+        
+        Add the edge orientation object to the section object using code from
+        pyicon.
+        
+        Parameters
+        ----------
+        self : iconspy.Section
+            The section you wish to calculate the edge orientation for
+
+        ds_IsD : xarray.Dataset
+            A dataset containing the model grid information, having been
+            operated on by iconspy.convert_tgrid_data()
+        
+        Notes
+        -----
+        Original code from pyicon under the MIT license.
+        Modified by Fraser Goldsworth on 18.06.2025.
+        See LICENSE file for more information.
+
+        """
+        
+        _assert_IsD_compatible(ds_IsD)
+        
+        ie_list = self.edge_circuit
+        iv_list = self.vertex_circuit
+        
+        or_list = np.zeros((ie_list.size))
+        for nn in range(ie_list.size):
+            iel = ds_IsD.edges_of_vertex[iv_list[nn],:]==ie_list[nn]
+            or_list[nn] = ds_IsD.edge_orientation[iv_list[nn], iel].item()
+            
+        orientation = xr.ones_like(self.edge_circuit) * or_list
+        
+        orientation = orientation.assign_attrs(
+            {
+                "sign convention": "positive to the left when traversing the path (into the region)",
+            }
+        )
+        
+        return orientation
 
 
     def to_pyicon_section(self, fpath):
@@ -781,17 +831,62 @@ class Region:
 
         return ds_path
 
+
     def __calculate_contained_cells(self, ds_IsD):
-        ring_coords = xr.concat(
-            (self.vertex_circuit["vlon"], self.vertex_circuit["vlat"]), dim="cart"
-        ).transpose(..., "cart")
-        
-        enclosed_area = shapely.polygons(ring_coords)
-        cell_points = shapely.points(ds_IsD["clon"], ds_IsD["clat"])
-        cell_idxs, = np.where(enclosed_area.contains(cell_points))
-        contained_cells = ds_IsD["cell"].isel(cell=cell_idxs)
-        return contained_cells
-    
+        # ── 1. Identify cells immediately inside (left) and outside (right) the boundary ──
+
+        # shape: (nedges, 2)
+        adjacent_cells_to_circuit = ds_IsD["adjacent_cell_of_edge"].sel(
+            edge=self.edge_circuit
+        ).values
+
+        # When path_orientation = +1, the left cell is nc_e=0; when -1, the left cell is nc_e=1
+        left_nc_e = (self.path_orientation.values == -1).astype(int)  # 0 or 1 per edge
+        edge_count = len(self.edge_circuit)
+        circuit_adj = adjacent_cells_to_circuit # (nedges, 2)
+
+        cells_to_the_left_of_the_path  = circuit_adj[np.arange(edge_count), left_nc_e]
+        cells_to_the_right_of_the_path = circuit_adj[np.arange(edge_count), 1 - left_nc_e]
+
+        # # path_orientation = +1 → left cell is nc_e=0; -1 → left cell is nc_e=1
+        # # Use direct integer indexing to avoid cell-0 being confused with a -1 sentinel.
+        # orientation  = self.path_orientation.values
+        # nc_e_left    = (orientation == -1).astype(int)
+        # nedges       = len(orientation)
+        # cells_to_the_left_of_the_path = adj_cells_on_circuit[np.arange(nedges), nc_e_left]
+
+        # ── 2. Flood-fill interior from the boundary-adjacent interior cells ──────────────
+        # Two cells share an edge iff they are adjacent via adjacent_cell_of_cell.
+        # The k-th neighbour in adjacent_cell_of_cell[i] is connected via edge_of_cell[i][k].
+        # We stop whenever a hop would cross a boundary edge.
+
+        boundary_edge_set = set(int(e) for e in self.edge_circuit.values)
+        adj_cell_of_cell  = ds_IsD["adjacent_cell_of_cell"].values   # (ncells, 3)
+        edge_of_cell      = ds_IsD["edge_of_cell"].values            # (ncells, 3)
+
+        seeds     = set(int(c) for c in cells_to_the_left_of_the_path if c >= 0)
+        contained = set(seeds)
+        queue     = deque(seeds)
+
+        while queue:
+            cell = queue.popleft()
+            for neighbor, shared_edge in zip(adj_cell_of_cell[cell], edge_of_cell[cell]):
+                if neighbor < 0 or shared_edge in boundary_edge_set:
+                    continue
+                if neighbor not in contained:
+                    contained.add(neighbor)
+                    queue.append(neighbor)
+
+        # ── 3. Return as an xarray DataArray matching the cell coordinate ─────────────────
+        all_contained_cells = ds_IsD["cell"].isel(
+            cell=sorted(contained)
+        ).assign_attrs(
+            {
+                "convention": "cells contained within the region lie to the left when traversing the circuit"
+            }
+        )
+        return all_contained_cells
+
 
     def plot(self, ax=None, proj=None, extent=None,
              coastlines=True, gridlines=True,
@@ -812,6 +907,8 @@ class Region:
             alpha=0.5,
             label=self.name
         )
+        
+        warnings.warn("Contained cells does not always plot correctly, particularly if the region encompasses a pole.")
     
     def __calculate_vertex_circuit(self, ds_IsD):
         # Create the vertex circuit by combining the sections
