@@ -36,6 +36,10 @@ class _Name:
     
     def strip_white_space(self):
         return self.name.replace(" ", "")
+    
+    def replace_white_space_with_underscore(self):
+        return self.name.replace(" ", "_")
+
 
 class TargetStation:
     """Represents a target station
@@ -388,6 +392,87 @@ class Section:
 
     def __repr__(self):
         return f"Section({self.name}, {self.station_a.name}, {self.station_b.name}, {self.section_type})"
+
+    def to_pyicon_section(self, ds_IsD, fpath=None, attrs=dict()):
+        try:
+            user = os.getlogin()
+        except:
+            user = "unknown"
+        
+        name = self.name.replace_white_space_with_underscore()
+
+        ie_section = xr.zeros_like(ds_IsD["edge"]).astype("int") - 99999
+        ie_section[:self.edge_path.size] = self.edge_path.values.astype("int")
+        ie_section = ie_section.rename(
+            f"ie_{name}"
+        ).assign_attrs(
+            {
+                "section name": str(self.name),
+                "description": f"Edge indices for section {self.name}",
+                "section_type": self.section_type,
+                "start_station": self.station_a.name,
+                "end_station": self.station_b.name,
+                "fill_value": -99999,
+                "ispy_version": __version__,
+                "uuidOfHGrid": self._uuidOfHGrid,
+                "Created by": user,
+            }
+        )
+
+        iv_section = xr.zeros_like(ds_IsD["vertex"]).astype("int") - 99999
+        iv_section[:self.vertex_path.size] = self.vertex_path.values.astype("int")
+        iv_section = iv_section.rename(
+            f"iv_{name}"
+        ).assign_attrs(
+            {
+                "description": f"Vertex indices for section {self.name}",
+                "section_type": self.section_type,
+                "start_station": self.station_a.name,
+                "end_station": self.station_b.name,
+                "fill_value": -99999,
+                "ispy_version": __version__,
+                "uuidOfHGrid": self._uuidOfHGrid,
+                "Created by": user,
+            }
+        )
+
+
+        negative_edges = self.edge_path.where(self.edge_orientation == -1, drop=True)
+        positive_edges = self.edge_path.where(self.edge_orientation == 1, drop=True)
+        mask = xr.where(ds_IsD["edge"].isin(negative_edges), -1, 0)  \
+            + xr.where(ds_IsD["edge"].isin(positive_edges), 1, 0)
+        mask = mask.rename(
+            f"mask_{name}"
+        ).assign_attrs(
+            {
+                "description": f"Mask for section {self.name}",
+                "section_type": self.section_type,
+                "start_station": self.station_a.name,
+                "end_station": self.station_b.name,
+                "ispy version": __version__,
+                "uuidOfHGrid": self._uuidOfHGrid,
+                "Created by": user,
+                "sign convention": "positive to the left when traversing the path",
+            }
+        )
+            
+        ds_pyicon_format = xr.merge(
+            [ie_section, iv_section, mask], compat='no_conflicts'
+        ).drop_attrs(deep=False).assign_attrs(
+            {            
+                "date": str(datetime.datetime.now())[:19],
+                "ispy version": __version__,
+                "uuidOfHGrid": self._uuidOfHGrid,
+                "section name": str(self.name),
+                "Created by": user,
+            }
+        ).assign_attrs(attrs)
+        
+        if fpath is not None:
+            print(f"Output will be saved to {fpath}")
+            ds_pyicon_format.to_netcdf(fpath)
+        
+        return ds_pyicon_format
 
     def to_ispy_section(self, fpath=None, attrs=dict()):
         ds_path = xr.Dataset()
@@ -795,8 +880,94 @@ class Region:
         return orientation
 
 
-    def to_pyicon_section(self, fpath):
-        raise NotImplementedError("Method not yet implemented")
+    def to_pyicon_region(self, ds_IsD, fpath=None, attrs=dict()):
+        try:
+            user = os.getlogin()
+        except:
+            user = "unknown"
+        
+        name = self.name.replace_white_space_with_underscore()
+
+        ie_section = xr.zeros_like(ds_IsD["edge"]).astype("int") - 99999
+        ie_section[:self.edge_circuit.size] = self.edge_circuit.values.astype("int")
+        ie_section = ie_section.rename(
+            f"ie_{name}"
+        ).assign_attrs(
+            {
+                "region name": str(self.name),
+                "description": f"Edge indices for region {self.name}",
+                "fill_value": -99999,
+                "ispy_version": __version__,
+                "uuidOfHGrid": self._uuidOfHGrid,
+                "Created by": user,
+            }
+        )
+
+        iv_section = xr.zeros_like(ds_IsD["vertex"]).astype("int") - 99999
+        iv_section[:self.vertex_circuit.size] = self.vertex_circuit.values.astype("int")
+        iv_section = iv_section.rename(
+            f"iv_{name}"
+        ).assign_attrs(
+            {
+                "description": f"Vertex indices for region {self.name}",
+                "fill_value": -99999,
+                "ispy_version": __version__,
+                "uuidOfHGrid": self._uuidOfHGrid,
+                "Created by": user,
+            }
+        )
+
+        ic_section = xr.zeros_like(ds_IsD["cell"]).astype("int") - 99999
+        ic_section[:self.contained_cells.size] = self.contained_cells.values.astype("int")
+        ic_section = ic_section.rename(
+            f"ic_{name}"
+        ).assign_attrs(
+            {
+                "description": f"Cell indices for region {self.name}",
+                "fill_value": -99999,
+                "ispy_version": __version__,
+                "uuidOfHGrid": self._uuidOfHGrid,
+                "Created by": user,
+            }
+        )
+
+
+        negative_edges = self.edge_circuit.where(self.path_orientation == -1, drop=True)
+        positive_edges = self.edge_circuit.where(self.path_orientation == 1, drop=True)
+        mask = xr.where(ds_IsD["edge"].isin(negative_edges), -1, 0)  \
+            + xr.where(ds_IsD["edge"].isin(positive_edges), 1, 0)
+        mask = mask.rename(
+            f"mask_{name}"
+        ).assign_attrs(
+            {
+                "region name": str(self.name),
+                "description": f"Mask for region {self.name}",
+                "ispy version": __version__,
+                "uuidOfHGrid": self._uuidOfHGrid,
+                "Created by": user,
+                "sign convention": "positive to the left when traversing the path (into the region)",
+            }
+        )
+            
+        ds_pyicon_format = xr.merge(
+            [ie_section, iv_section, ic_section, mask], compat='no_conflicts',
+        ).drop_attrs(deep=False).assign_attrs(
+            {            
+                "date": str(datetime.datetime.now())[:19],
+                "ispy version": __version__,
+                "uuidOfHGrid": self._uuidOfHGrid,
+                "region name": str(self.name),
+                "Created by": user,
+            }
+        ).assign_attrs(attrs)
+
+        ds_pyicon_format
+        
+        if fpath is not None:
+            print(f"Output will be saved to {fpath}")
+            ds_pyicon_format.to_netcdf(fpath)
+        
+        return ds_pyicon_format
 
 
     def to_ispy_section(self, fpath=None, attrs=dict()):
@@ -817,7 +988,7 @@ class Region:
                 "date": str(datetime.datetime.now())[:19],
                 "ispy version": __version__,
                 "uuidOfHGrid": self._uuidOfHGrid,
-                "section name": str(self.name),
+                "region name": str(self.name),
                 "Created by": user,
             }
         ).assign_attrs(attrs)
