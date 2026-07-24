@@ -366,15 +366,13 @@ def _pyicon_convert_tgrid_data(ds_tg_in):
 
 
 
-def convert_tgrid_data(ds_tgrid, pyic_kwargs=None):
+def convert_tgrid_data(ds_tgrid):
     """Formats the model grid in the format required by iconspy
 
     Parameters
     ----------
     ds_tgrid : xarray.Dataset
         Dataset represention of the raw model grid (e.g. downloaded from "http://icon-downloads.mpimet.mpg.de")
-    pyic_kwargs : dict, optional
-        Dictionary containig arguments to be passed to the pyicon.convert_tgrid_data function, by default None
 
     Returns
     -------
@@ -404,10 +402,7 @@ def convert_tgrid_data(ds_tgrid, pyic_kwargs=None):
                 "behaviour."
             )
     
-    if pyic_kwargs is None:
-        pyic_kwargs = dict()
-    
-    ds_IsD = _pyicon_convert_tgrid_data(ds_tgrid, **pyic_kwargs)
+    ds_IsD = _pyicon_convert_tgrid_data(ds_tgrid)
 
     for point in ["cell", "edge", "vertex"]:
         if (point not in ds_IsD.coords) and (point in ds_IsD.dims):
