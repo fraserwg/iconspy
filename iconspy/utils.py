@@ -11,22 +11,6 @@ from .balltree import (
     IspyWetBallTree,
 )
 
-def create_boundary_connectivity_matrix(ds_IsD, weight_type="distance"):
-    i = ds_IsD["edge_vertices"].isel(nv_e=0)
-    j = ds_IsD["edge_vertices"].isel(nv_e=1)
-    if weight_type == "distance":
-        data = ds_IsD["edge_length"] * xr.where(ds_IsD["edge_sea_land_mask"].compute() == 2, 1, np.inf)
-    else:
-        raise NotImplementedError("The requested weighting type has not yet \
-            been implemented")
-
-    iprime = xr.concat((i, j), dim="edge")
-    jprime = xr.concat((j, i), dim="edge")
-    dataprime = xr.concat((data, data), dim="edge")
-
-    vertex_graph = coo_matrix((dataprime, (iprime.values, jprime.values))).tocsr()
-    return vertex_graph
-
 
 def orientation_along_path(ds_IsD, vertex_path, edge_path):
     # Construct the polygon

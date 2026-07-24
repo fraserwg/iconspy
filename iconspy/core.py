@@ -5,7 +5,6 @@ import warnings
 import cartopy.crs as ccrs
 from .utils import (
     create_connectivity_matrix,
-    create_boundary_connectivity_matrix,
     setup_figure_area,
     find_vertex_path,
     vertex_path_to_edge_path,
@@ -610,7 +609,6 @@ class LandSection(Section):
         if self.section_type != "shortest":
             raise ValueError(f"LandSection should have section type of 'shortest', not {self.section_type}")
 
-        # vertex_graph = create_boundary_connectivity_matrix(ds_IsD, weight_type="distance")
         weights = ds_IsD["edge_length"] * xr.where(ds_IsD["edge_sea_land_mask"].compute() == 2, 1, 1e6)
         vertex_graph = create_connectivity_matrix(ds_IsD, weights)
 
