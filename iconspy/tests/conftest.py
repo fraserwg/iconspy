@@ -23,7 +23,7 @@ def get_ds_tgrid_lr():
                 download it"
             )
 
-    ds_grid = xr.open_dataset(grid_path, chunks="auto")
+    ds_grid = xr.open_dataset(grid_path, chunks="auto", engine="h5netcdf")
     return ds_grid
 
 
@@ -45,7 +45,7 @@ def get_ds_fxgrid_lr():
                 download it from {fxgrid_swift_url}"
             )
 
-    ds_fxgrid = xr.open_dataset(fx_grid_path, chunks="auto")
+    ds_fxgrid = xr.open_dataset(fx_grid_path, chunks="auto", engine="h5netcdf")
     return ds_fxgrid
 
 
