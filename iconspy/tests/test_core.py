@@ -389,8 +389,13 @@ def test_LandSection(ispy_grid):
 
     target_b1 = TargetStation("Boundary 1", -14, 80, boundary=True)
     target_b2 = TargetStation("Boundary 2", 5, 78, boundary=True)
+    target_w1 = TargetStation("Water 1", -92.592, -23.219, boundary=False)
+    target_w2 = TargetStation("Water 2", -14, 80, boundary=None)
+    
     model_b1 = target_b1.to_model_station(ds_IsD)
     model_b2 = target_b2.to_model_station(ds_IsD)
+    model_w1 = target_w1.to_model_station(ds_IsD)
+    model_w2 = target_w2.to_model_station(ds_IsD)
 
     # Instantiation and type check
     ls = LandSection("Land Section", model_b1, model_b2, ds_IsD)
@@ -408,6 +413,8 @@ def test_LandSection(ispy_grid):
     assert ls._uuidOfHGrid == ds_IsD.attrs["uuidOfHGrid"]
 
     # Antarctica to Greenland
+    # Present implementation allows a path to be found but setting wet edges
+    # to have 1e6 times the weight of a land edge.
     target_ant = TargetStation("Antarctica", 0, -90, boundary=True)
     target_green = TargetStation("Greenland", -42, 72, boundary=True)
     model_ant = target_ant.to_model_station(ds_IsD)
@@ -420,7 +427,17 @@ def test_LandSection(ispy_grid):
     assert np.sum(ls_long.vertex_path) == 598718
     assert np.sum(ls_long.edge_path) == 1690127
     assert np.sum(ls_long.edge_orientation) == 12
+    
 
+    # Check starting with wet stations triggers and error
+    with pytest.raises(ValueError):
+        LandSection("Wet to Wet", model_b1, model_w1, ds_IsD)
+    with pytest.raises(ValueError):
+        LandSection("Wet to Wet", model_b1, model_w2, ds_IsD)
+    with pytest.raises(ValueError):
+        LandSection("Wet to Wet", model_w1, model_b2, ds_IsD)
+    with pytest.raises(ValueError):
+        LandSection("Wet to Wet", model_w2, model_b1, ds_IsD)
 
 def test_region(ispy_grid):
     ds_IsD = ispy_grid

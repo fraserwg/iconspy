@@ -578,6 +578,12 @@ class LandSection(Section):
     def __init__(self, name, model_station_a, model_station_b, ds_IsD):
         _assert_IsD_compatible(ds_IsD)
 
+        if not isinstance(model_station_a, BoundaryModelStation):
+            raise ValueError("model_station_a should be a BoundaryModelStation")
+        elif not isinstance(model_station_b, BoundaryModelStation):
+            raise ValueError("model_station_b should be a BoundaryModelStation")
+
+
         self.name = _Name(name)
         self.station_a = model_station_a
         self.station_b = model_station_b
