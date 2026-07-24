@@ -72,7 +72,7 @@ def orientation_along_path(ds_IsD, vertex_path, edge_path):
     grid_orientation = ds_IsD2["orientation_of_normal"].sel(cell=adj_cells).where(ds_IsD2["ne_c"] == ne_c_index).max("ne_c")
     
     path_orientation = inside_outside_orientation * grid_orientation
-    path_orientation = path_orientation.drop(["clon", "clat", "cell"])
+    path_orientation = path_orientation.drop_vars(["clon", "clat", "cell"])
     return path_orientation
 
 
