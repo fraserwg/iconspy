@@ -374,6 +374,8 @@ def test_Section(ispy_grid):
     ### Check to_ispy_section method
     southern_edge_shortest_ispy_section = southern_edge_shortest.to_ispy_section()
     assert isinstance(southern_edge_shortest_ispy_section, xr.Dataset)
+    southern_edge_shortest_pyicon_section = southern_edge_shortest.to_pyicon_section()
+    assert isinstance(southern_edge_shortest_pyicon_section, xr.Dataset)
 
 
 def test_CombinedSection(ispy_grid):
@@ -535,10 +537,11 @@ def test_region(ispy_grid):
     assert np.sum(region_inverted.contained_cells) + np.sum(region_full.contained_cells) == np.sum(ds_IsD["cell"])
 
     ## Check methods
-    assert isinstance(region_full.to_ispy_section(), xr.Dataset)
+    assert isinstance(region_full.to_ispy_region(), xr.Dataset)
     extracted = region_full.extract_sections_from_region(ds_IsD)
     assert isinstance(extracted, OrderedDict)
     assert list(extracted.keys()) == ["SW to Mid", "Mid to SE", "SE to SW"]
+    assert isinstance(region_full.to_pyicon_region(ds_IsD), xr.Dataset)
 
     # Disconnected sections should raise ValueError
     target_ne = TargetStation("NE Corner", -70.285, -10.0, boundary=True)

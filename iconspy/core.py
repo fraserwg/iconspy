@@ -970,7 +970,7 @@ class Region:
         return ds_pyicon_format
 
 
-    def to_ispy_section(self, fpath=None, attrs=dict()):
+    def to_ispy_region(self, fpath=None, attrs=dict()):
             
         ds_path = xr.Dataset()
         ds_path["edge_path"] = self.edge_circuit
