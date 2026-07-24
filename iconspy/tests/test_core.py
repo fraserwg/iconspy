@@ -373,6 +373,16 @@ def test_CombinedSection(ispy_grid):
     assert np.sum(combined3.edge_path) == 169928
     assert np.sum(combined3.edge_orientation) == 1
 
+    # Wrong order with one section reversed raises ValueError
+    ## Correct order is [section_1, section_2, section_3b]; here section_3b is reversed
+    ## and placed first, breaking both ordering and direction
+    with pytest.raises(ValueError):
+        CombinedSection("Bad order", [section_3b.reverse_section(), section_1, section_2], ds_IsD)
+
+    # Wrong order with no sections reversed also raises ValueError
+    with pytest.raises(ValueError):
+        CombinedSection("Wrong order", [section_2, section_3b, section_1], ds_IsD)
+
 
 def test_LandSection(ispy_grid):
     ds_IsD = ispy_grid
