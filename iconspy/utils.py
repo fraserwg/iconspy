@@ -209,15 +209,6 @@ def _pyicon_convert_tgrid_data(ds_tg_in):
     -------
     ds_IcD : xr.Dataset
         A tgrid dataset compatible with pyicon functions
-
-
-    Notes
-    -----
-    Open classical ICON grid file by:
-    >>> ds_tg = xr.open_dataset(fpath_tg, chunks=dict())
-
-    Then convert by:
-    >>> ds_IcD = pyic.convert_tgrid_data(ds_tg)
     
     Notes
     -----
@@ -400,8 +391,8 @@ def convert_tgrid_data(ds_tgrid, pyic_kwargs=None):
     >>> from pathlib import Path
     >>> import xarray as xr
     >>> import iconspy as ispy
-    >>> tgrid_path = Path("/pool/data/ICON/grids/public/mpim/0036/icon_grid_0036_R02B04_O.nc")
-    >>> ds_tgrid = xr.open_dataset(tgrid_path)
+    >>> from iconspy.tests.conftest import get_ds_tgrid_lr
+    >>> ds_tgrid = get_ds_tgrid_lr()
     >>> ds_IsD = convert_tgrid_data(ds_tgrid)
     >>> ds_IsD = ds_IsD.load()
     """
