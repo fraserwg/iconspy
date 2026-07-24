@@ -11,7 +11,7 @@ from .balltree import (
 )
 
 
-def vertex_path_to_edge_path(ds_IsD, vertex_path):
+def _vertex_path_to_edge_path(ds_IsD, vertex_path):
     """ Converts a path of vertex indices to a path of the edges which
     connect them.
 
@@ -60,7 +60,7 @@ def vertex_path_to_edge_path(ds_IsD, vertex_path):
     return edge_path_xr
 
 
-def find_vertex_path(graph, west_vertex, east_vertex):
+def _find_vertex_path(graph, west_vertex, east_vertex):
     """ Given a graph and the indices of the start and end points, will find
     the shortest path between them
 
@@ -93,7 +93,7 @@ def find_vertex_path(graph, west_vertex, east_vertex):
     vertex_path = np.array(path)
     return vertex_path
 
-def create_connectivity_matrix(ds_IsD, weights):
+def _create_connectivity_matrix(ds_IsD, weights):
     i = ds_IsD["edge_vertices"].isel(nv_e=0).astype("int32")
     j = ds_IsD["edge_vertices"].isel(nv_e=1).astype("int32")
 
@@ -129,7 +129,12 @@ def setup_figure_area(ax=None, proj=None, gridlines=True, coastlines=True, exten
 
 
 def _pyicon_convert_tgrid_data(ds_tg_in):
-    """Convert xarray grid file to grid file compatible with pyicon function.
+    """Initial conversion of a tgrid dataset
+
+    iconspy datasets (ds_IsD) require some preprocessing of the raw grid data
+    before they can be used. We use this function which comes from pyicon to
+    do some reindexing and renaming of variables for us. This function
+    should not be called directly by the end user.
 
     Parameters
     ----------
@@ -154,9 +159,7 @@ def _pyicon_convert_tgrid_data(ds_tg_in):
 
     if "converted_tgrid" in ds_tg.attrs:
         raise ValueError(
-            "ds_tg has previously been converted by this function," + \
-            "applying the function again will lead to undocumented" + \
-            "behaviour."
+            "ds_tg has previously been converted by this function,"
         )
 
     ds_IcD = xr.Dataset()

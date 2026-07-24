@@ -5,10 +5,10 @@ from collections import deque
 import warnings
 import cartopy.crs as ccrs
 from .utils import (
-    create_connectivity_matrix,
+    _create_connectivity_matrix,
     setup_figure_area,
-    find_vertex_path,
-    vertex_path_to_edge_path,
+    _find_vertex_path,
+    _vertex_path_to_edge_path,
     _assert_IsD_compatible,
 )
 
@@ -374,14 +374,14 @@ class Section:
 
         vertex_graph = self.__compute_vertex_graph(ds_IsD, contour_target, contour_data, weights)
 
-        vertex_path_np = find_vertex_path(vertex_graph, self.station_a.vertex, self.station_b.vertex)
+        vertex_path_np = _find_vertex_path(vertex_graph, self.station_a.vertex, self.station_b.vertex)
         self.vertex_path = ds_IsD["vertex"].sel(vertex=vertex_path_np).rename({"vertex": "step_in_path_v"})
         self.vertex_path["step_in_path_v"] = np.arange(self.vertex_path.sizes["step_in_path_v"])
         
         self.vlon = ds_IsD["vlon"].sel(vertex=self.vertex_path)
         self.vlat = ds_IsD["vlat"].sel(vertex=self.vertex_path)
 
-        self.edge_path = vertex_path_to_edge_path(ds_IsD, self.vertex_path)
+        self.edge_path = _vertex_path_to_edge_path(ds_IsD, self.vertex_path)
 
         self.edge_orientation = self._get_pyic_orientation_along_path(ds_IsD)
 
@@ -514,7 +514,7 @@ class Section:
                 "Section type requested is not implemented. Should be one of ['shortest', 'isolat', 'isolon', 'great circle', 'rhumb line', 'contour', 'weights']"
             )
 
-        vertex_graph = create_connectivity_matrix(ds_IsD, weights)
+        vertex_graph = _create_connectivity_matrix(ds_IsD, weights)
 
         return vertex_graph
     
@@ -616,14 +616,14 @@ class LandSection(Section):
 
         vertex_graph = self.__compute_vertex_graph(ds_IsD)
 
-        vertex_path_np = find_vertex_path(vertex_graph, self.station_a.vertex, self.station_b.vertex)
+        vertex_path_np = _find_vertex_path(vertex_graph, self.station_a.vertex, self.station_b.vertex)
         self.vertex_path = ds_IsD["vertex"].sel(vertex=vertex_path_np).rename({"vertex": "step_in_path_v"})
         self.vertex_path["step_in_path_v"] = np.arange(self.vertex_path.sizes["step_in_path_v"])
 
         self.vlon = ds_IsD["vlon"].sel(vertex=self.vertex_path)
         self.vlat = ds_IsD["vlat"].sel(vertex=self.vertex_path)
 
-        self.edge_path = vertex_path_to_edge_path(ds_IsD, self.vertex_path)
+        self.edge_path = _vertex_path_to_edge_path(ds_IsD, self.vertex_path)
 
         self.edge_orientation = self._get_pyic_orientation_along_path(ds_IsD)
     
@@ -637,7 +637,7 @@ class LandSection(Section):
             raise ValueError(f"LandSection should have section type of 'shortest', not {self.section_type}")
 
         weights = ds_IsD["edge_length"] * xr.where(ds_IsD["edge_sea_land_mask"].compute() == 2, 1, 1e6)
-        vertex_graph = create_connectivity_matrix(ds_IsD, weights)
+        vertex_graph = _create_connectivity_matrix(ds_IsD, weights)
 
         return vertex_graph
 
@@ -710,7 +710,7 @@ class CombinedSection(Section):
         
         # Get the edge paths from the vertex path
         # (We recalculate this to be on the safe side)
-        self.edge_path = vertex_path_to_edge_path(ds_IsD, self.vertex_path)
+        self.edge_path = _vertex_path_to_edge_path(ds_IsD, self.vertex_path)
         
         # Get the new vertex coordinates from the vertex path
         self.vlon = ds_IsD["vlon"].sel(vertex=self.vertex_path)
@@ -738,7 +738,7 @@ class Region:
 
         # Get the vertex, edge and orientation xr.DataArrays
         self.vertex_circuit = self.__calculate_vertex_circuit(ds_IsD)
-        self.edge_circuit = vertex_path_to_edge_path(ds_IsD, self.vertex_circuit)
+        self.edge_circuit = _vertex_path_to_edge_path(ds_IsD, self.vertex_circuit)
         self.path_orientation = self._get_pyic_orientation_along_path(ds_IsD)
         self.contained_cells = self.__calculate_contained_cells(ds_IsD)
     
