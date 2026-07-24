@@ -8,11 +8,10 @@ from iconspy.utils import (
     create_connectivity_matrix,
     find_vertex_path,
     vertex_path_to_edge_path,
-    orientation_along_path,
 )
-from iconspy.core import Section, Region, TargetStation
+from iconspy.core import Section, TargetStation
 from iconspy.balltree import IspyBoundaryBallTree, IspyWetBallTree
-from .conftest import raw_grid, ispy_grid, boundary_target_station
+from .conftest import raw_grid, ispy_grid
 
 
 def test_IsD_conversion(raw_grid):
@@ -102,26 +101,3 @@ def test_vertex_path_to_edge_path(ispy_grid):
     assert isinstance(edge_path, xr.DataArray)
     assert edge_path.size == section.vertex_path.size - 1
     assert int(np.sum(edge_path.values)) == 143159
-
-
-def test_orientation_along_path(ispy_grid):
-    ds_IsD = ispy_grid
-
-    target_sw = TargetStation("SW Corner", -92.592, -23.219, boundary=False)
-    target_mid = TargetStation("Mid Corner", -81.0, -23.219, boundary=False)
-    target_se = TargetStation("SE Corner", -70.285, -18.491, boundary=True)
-    model_sw = target_sw.to_model_station(ds_IsD)
-    model_mid = target_mid.to_model_station(ds_IsD)
-    model_se = target_se.to_model_station(ds_IsD)
-
-    sec_sw_mid = Section("SW to Mid", model_sw, model_mid, ds_IsD, section_type="shortest")
-    sec_mid_se = Section("Mid to SE", model_mid, model_se, ds_IsD, section_type="shortest")
-    sec_se_sw = Section("SE to SW", model_se, model_sw, ds_IsD, section_type="shortest")
-    region = Region("Test Region", [sec_sw_mid, sec_mid_se, sec_se_sw], ds_IsD)
-
-    orientation = orientation_along_path(ds_IsD, region.vertex_circuit, region.edge_circuit)
-
-    assert isinstance(orientation, xr.DataArray)
-    assert orientation.size == 20
-    assert set(orientation.values.tolist()) == {-1.0, 1.0}
-    assert int(np.sum(orientation.values)) == 0

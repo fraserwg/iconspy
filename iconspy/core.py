@@ -9,7 +9,6 @@ from .utils import (
     setup_figure_area,
     find_vertex_path,
     vertex_path_to_edge_path,
-    orientation_along_path,
     _assert_IsD_compatible,
 )
 
@@ -23,7 +22,6 @@ from . import __version__
 import datetime
 import copy as cp
 import networkx as nx
-import shapely
 from collections import OrderedDict
 
 class _Name:
@@ -741,7 +739,6 @@ class Region:
         # Get the vertex, edge and orientation xr.DataArrays
         self.vertex_circuit = self.__calculate_vertex_circuit(ds_IsD)
         self.edge_circuit = vertex_path_to_edge_path(ds_IsD, self.vertex_circuit)
-        # self.path_orientation = orientation_along_path(ds_IsD, self.vertex_circuit, self.edge_circuit)
         self.path_orientation = self._get_pyic_orientation_along_path(ds_IsD)
         self.contained_cells = self.__calculate_contained_cells(ds_IsD)
     

@@ -16,7 +16,6 @@ dependencies = [
     "xarray",
     "cartopy",
     "networkx",
-    "shapely",
     "matplotlib",
     "scipy",
     "cmocean",

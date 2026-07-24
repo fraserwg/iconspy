@@ -1,7 +1,6 @@
 from itertools import product
 from scipy.sparse import coo_matrix, csgraph
 from scipy.stats import mode
-import shapely
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import numpy as np
@@ -10,54 +9,6 @@ from .balltree import (
     IspyBoundaryBallTree,
     IspyWetBallTree,
 )
-
-
-def orientation_along_path(ds_IsD, vertex_path, edge_path):
-    # Construct the polygon
-    vertex_path = vertex_path.rename(step_in_path_v="step_in_path")
-    polygon_xy_pairs = xr.concat(
-        (vertex_path["vlon"], vertex_path["vlat"]),
-        dim="cart"
-    ).transpose("step_in_path", "cart")
-    polygon = shapely.Polygon(polygon_xy_pairs)
-    
-    # Find the adjacent cells
-    adj_cell_idx = ds_IsD["adjacent_cell_of_edge"].sel(edge=edge_path).max("nc_e")  # go for max to remove -1 values
-    adj_cells = ds_IsD["cell"].sel(cell=adj_cell_idx)
-
-    # Construct an array of shapely points
-    adj_cell_xy_pairs = xr.concat((adj_cells["clon"], adj_cells["clat"]), dim="cart").transpose("step_in_path", "cart")
-    cell_points = xr.apply_ufunc(
-        shapely.Point,
-        adj_cell_xy_pairs,
-        input_core_dims=[["cart"]],
-        vectorize=True,
-        # dask="parallelized",
-        # dask_gufunc_kwargs={"allow_rechunk": True}
-    )
-
-    # Query which points are within the polygon
-    cell_points_in_polygon = xr.apply_ufunc(
-        polygon.contains,
-        cell_points,
-        input_core_dims=[[]],
-    )
-    
-    # Create an inside/outside orientation array
-    inside_outside_orientation = cell_points_in_polygon.where(cell_points_in_polygon != False, -1)
-    
-    # Find the orientation of the grid
-    ds_IsD2 = ds_IsD.assign_coords(ne_c=("ne_c", [0, 1, 2]))
-
-    edge_of_adj_cells = ds_IsD["edge_of_cell"].sel(cell=adj_cells)
-
-    # Need to find which ne_c index corresponds to our cell/edge pair to get the orientation
-    ne_c_index = edge_of_adj_cells.where(edge_of_adj_cells == adj_cells["edge"]).argmax("ne_c")
-    grid_orientation = ds_IsD2["orientation_of_normal"].sel(cell=adj_cells).where(ds_IsD2["ne_c"] == ne_c_index).max("ne_c")
-    
-    path_orientation = inside_outside_orientation * grid_orientation
-    path_orientation = path_orientation.drop_vars(["clon", "clat", "cell"])
-    return path_orientation
 
 
 def vertex_path_to_edge_path(ds_IsD, vertex_path):
