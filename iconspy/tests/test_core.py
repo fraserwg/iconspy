@@ -393,7 +393,7 @@ def test_LandSection(ispy_grid):
     model_b2 = target_b2.to_model_station(ds_IsD)
 
     # Instantiation and type check
-    ls = LandSection("Land Section", model_b1, model_b2, ds_IsD, section_type="shortest")
+    ls = LandSection("Land Section", model_b1, model_b2, ds_IsD)
     assert isinstance(ls, LandSection)
     assert isinstance(ls, Section)
 
@@ -402,8 +402,8 @@ def test_LandSection(ispy_grid):
     assert ls.station_a == model_b1
     assert ls.station_b == model_b2
     assert ls.section_type == "shortest"
-    assert np.sum(ls.vertex_path) == 4191
-    assert np.sum(ls.edge_path) == 7368
+    assert np.sum(ls.vertex_path) == 6983
+    assert np.sum(ls.edge_path) == 14737
     assert np.sum(ls.edge_orientation) == 0
     assert ls._uuidOfHGrid == ds_IsD.attrs["uuidOfHGrid"]
 
@@ -413,13 +413,13 @@ def test_LandSection(ispy_grid):
     model_ant = target_ant.to_model_station(ds_IsD)
     model_green = target_green.to_model_station(ds_IsD)
 
-    ls_long = LandSection("Antarctica to Greenland", model_ant, model_green, ds_IsD, section_type="shortest")
+    ls_long = LandSection("Antarctica to Greenland", model_ant, model_green, ds_IsD)
     assert str(ls_long.name) == "Antarctica to Greenland"
     assert ls_long.station_a == model_ant
     assert ls_long.station_b == model_green
-    assert np.sum(ls_long.vertex_path) == 341601
-    assert np.sum(ls_long.edge_path) == 957204
-    assert np.sum(ls_long.edge_orientation) == 9
+    assert np.sum(ls_long.vertex_path) == 598718
+    assert np.sum(ls_long.edge_path) == 1690127
+    assert np.sum(ls_long.edge_orientation) == 12
 
 
 def test_region(ispy_grid):

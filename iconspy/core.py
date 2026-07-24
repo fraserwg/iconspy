@@ -576,14 +576,43 @@ class Section:
 
 
 class LandSection(Section):
+    def __init__(self, name, model_station_a, model_station_b, ds_IsD):
+        _assert_IsD_compatible(ds_IsD)
+
+        self.name = _Name(name)
+        self.station_a = model_station_a
+        self.station_b = model_station_b
+        self.section_type = "shortest"
+        self.vertex_path = None
+        self.edge_path = None
+        self.edge_orientation = None
+        self._uuidOfHGrid = ds_IsD.attrs["uuidOfHGrid"]
+
+        vertex_graph = self.__compute_vertex_graph(ds_IsD)
+
+        vertex_path_np = find_vertex_path(vertex_graph, self.station_a.vertex, self.station_b.vertex)
+        self.vertex_path = ds_IsD["vertex"].sel(vertex=vertex_path_np).rename({"vertex": "step_in_path_v"})
+        self.vertex_path["step_in_path_v"] = np.arange(self.vertex_path.sizes["step_in_path_v"])
+
+        self.vlon = ds_IsD["vlon"].sel(vertex=self.vertex_path)
+        self.vlat = ds_IsD["vlat"].sel(vertex=self.vertex_path)
+
+        self.edge_path = vertex_path_to_edge_path(ds_IsD, self.vertex_path)
+
+        self.edge_orientation = self._get_pyic_orientation_along_path(ds_IsD)
+    
+    
     def __repr__(self):
         return f"LandSection({self.name}, {self.station_a.name}, {self.station_b.name}, {self.section_type})"
-    
-    def __compute_vertex_graph(self, ds_IsD, contour_target=None, contour_data=None):
+
+
+    def __compute_vertex_graph(self, ds_IsD):
         if self.section_type != "shortest":
             raise ValueError(f"LandSection should have section type of 'shortest', not {self.section_type}")
 
-        vertex_graph = create_boundary_connectivity_matrix(ds_IsD, weight_type="distance")
+        # vertex_graph = create_boundary_connectivity_matrix(ds_IsD, weight_type="distance")
+        weights = ds_IsD["edge_length"] * xr.where(ds_IsD["edge_sea_land_mask"].compute() == 2, 1, 1e6)
+        vertex_graph = create_connectivity_matrix(ds_IsD, weights)
 
         return vertex_graph
 
