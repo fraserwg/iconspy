@@ -1,4 +1,5 @@
 import pytest
+from collections import OrderedDict
 from iconspy.core import *
 from .conftest import raw_grid, ispy_grid, boundary_target_station
 
@@ -314,6 +315,147 @@ def test_Section(ispy_grid):
     ### Check to_ispy_section method
     southern_edge_shortest_ispy_section = southern_edge_shortest.to_ispy_section()
     assert isinstance(southern_edge_shortest_ispy_section, xr.Dataset)
-    
+
+
+def test_CombinedSection(ispy_grid):
+    ds_IsD = ispy_grid
+
+    target_sw = TargetStation("SW Corner", -92.592, -23.219, boundary=False)
+    target_mid = TargetStation("Mid Corner", -81.0, -23.219, boundary=False)
+    target_se = TargetStation("SE Corner", -70.285, -18.491, boundary=True)
+    model_sw = target_sw.to_model_station(ds_IsD)
+    model_mid = target_mid.to_model_station(ds_IsD)
+    model_se = target_se.to_model_station(ds_IsD)
+
+    section_1 = Section("SW to Mid", model_sw, model_mid, ds_IsD, section_type="shortest")
+    section_2 = Section("Mid to SE", model_mid, model_se, ds_IsD, section_type="shortest")
+
+    # Instantiation and type check
+    combined = CombinedSection("Combined", [section_1, section_2], ds_IsD)
+    assert isinstance(combined, CombinedSection)
+    assert isinstance(combined, Section)
+
+    ## Check attributes
+    assert str(combined.name) == "Combined"
+    assert combined.station_a == model_sw
+    assert combined.station_b == model_se
+    assert combined.section_type == "shortest"
+    assert np.sum(combined.vertex_path) == 55806
+    assert np.sum(combined.edge_path) == 143165
+    assert np.sum(combined.edge_orientation) == 1
+    assert combined._uuidOfHGrid == ds_IsD.attrs["uuidOfHGrid"]
+
+    ## Check mixed section_type
+    section_1b = Section("SW to Mid rhumb", model_sw, model_mid, ds_IsD, section_type="rhumb line")
+    section_2b = Section("Mid to SE shortest", model_mid, model_se, ds_IsD, section_type="shortest")
+    combined_mixed = CombinedSection("Mixed", [section_1b, section_2b], ds_IsD)
+    assert combined_mixed.section_type == "mixed"
+
+    ## Check methods
+    assert isinstance(combined.to_ispy_section(), xr.Dataset)
+
+    ## Check ValueError when sections don't connect
+    section_3 = Section("SE to SW", model_se, model_sw, ds_IsD, section_type="shortest")
+    with pytest.raises(ValueError):
+        CombinedSection("Bad", [section_1, section_3], ds_IsD)
+
+    # 3-section combination
+    target_ne = TargetStation("NE Corner", -70.285, -10.0, boundary=True)
+    model_ne = target_ne.to_model_station(ds_IsD)
+    section_3b = Section("SE to NE", model_se, model_ne, ds_IsD, section_type="shortest")
+
+    combined3 = CombinedSection("Three Section Combined", [section_1, section_2, section_3b], ds_IsD)
+    assert str(combined3.name) == "Three Section Combined"
+    assert combined3.station_a == model_sw
+    assert combined3.station_b == model_ne
+    assert combined3.section_type == "shortest"
+    assert np.sum(combined3.vertex_path) == 65341
+    assert np.sum(combined3.edge_path) == 169928
+    assert np.sum(combined3.edge_orientation) == 1
+
+
+def test_LandSection(ispy_grid):
+    ds_IsD = ispy_grid
+
+    target_b1 = TargetStation("Boundary 1", -14, 80, boundary=True)
+    target_b2 = TargetStation("Boundary 2", 5, 78, boundary=True)
+    model_b1 = target_b1.to_model_station(ds_IsD)
+    model_b2 = target_b2.to_model_station(ds_IsD)
+
+    # Instantiation and type check
+    ls = LandSection("Land Section", model_b1, model_b2, ds_IsD, section_type="shortest")
+    assert isinstance(ls, LandSection)
+    assert isinstance(ls, Section)
+
+    ## Check attributes
+    assert str(ls.name) == "Land Section"
+    assert ls.station_a == model_b1
+    assert ls.station_b == model_b2
+    assert ls.section_type == "shortest"
+    assert np.sum(ls.vertex_path) == 4191
+    assert np.sum(ls.edge_path) == 7368
+    assert np.sum(ls.edge_orientation) == 0
+    assert ls._uuidOfHGrid == ds_IsD.attrs["uuidOfHGrid"]
+
+    # Antarctica to Greenland
+    target_ant = TargetStation("Antarctica", 0, -90, boundary=True)
+    target_green = TargetStation("Greenland", -42, 72, boundary=True)
+    model_ant = target_ant.to_model_station(ds_IsD)
+    model_green = target_green.to_model_station(ds_IsD)
+
+    ls_long = LandSection("Antarctica to Greenland", model_ant, model_green, ds_IsD, section_type="shortest")
+    assert str(ls_long.name) == "Antarctica to Greenland"
+    assert ls_long.station_a == model_ant
+    assert ls_long.station_b == model_green
+    assert np.sum(ls_long.vertex_path) == 341601
+    assert np.sum(ls_long.edge_path) == 957204
+    assert np.sum(ls_long.edge_orientation) == 9
+
+
 def test_region(ispy_grid):
-    pass
+    ds_IsD = ispy_grid
+
+    target_sw = TargetStation("SW Corner", -92.592, -23.219, boundary=False)
+    target_mid = TargetStation("Mid Corner", -81.0, -23.219, boundary=False)
+    target_se = TargetStation("SE Corner", -70.285, -18.491, boundary=True)
+    model_sw = target_sw.to_model_station(ds_IsD)
+    model_mid = target_mid.to_model_station(ds_IsD)
+    model_se = target_se.to_model_station(ds_IsD)
+
+    sec_sw_mid = Section("SW to Mid", model_sw, model_mid, ds_IsD, section_type="shortest")
+    sec_mid_se = Section("Mid to SE", model_mid, model_se, ds_IsD, section_type="shortest")
+    sec_se_sw = Section("SE to SW", model_se, model_sw, ds_IsD, section_type="shortest")
+
+    # Instantiation with test=True (skips edge/orientation/cells)
+    region_test = Region("Test Region", [sec_sw_mid, sec_mid_se, sec_se_sw], ds_IsD, test=True)
+    assert isinstance(region_test, Region)
+
+    ## Check attributes
+    assert str(region_test.name) == "Test Region"
+    assert region_test._uuidOfHGrid == ds_IsD.attrs["uuidOfHGrid"]
+    assert len(region_test.section_list) == 3
+    assert region_test.vertex_circuit.size == 21
+    assert not hasattr(region_test, "edge_circuit")
+
+    # Full instantiation
+    region_full = Region("Full Region", [sec_sw_mid, sec_mid_se, sec_se_sw], ds_IsD)
+    assert np.sum(region_full.vertex_circuit) == 97618
+    assert np.sum(region_full.edge_circuit) == 260598
+    assert np.sum(region_full.path_orientation) == 0
+    assert region_full.contained_cells.size == 32
+
+    ## Check methods
+    assert isinstance(region_full.to_ispy_section(), xr.Dataset)
+    extracted = region_full.extract_sections_from_region(ds_IsD)
+    assert isinstance(extracted, OrderedDict)
+    assert list(extracted.keys()) == ["SW to Mid", "Mid to SE", "SE to SW"]
+
+    # Disconnected sections should raise ValueError
+    target_ne = TargetStation("NE Corner", -70.285, -10.0, boundary=True)
+    target_nw = TargetStation("NW Corner", -92.592, -10.0, boundary=True)
+    model_ne = target_ne.to_model_station(ds_IsD)
+    model_nw = target_nw.to_model_station(ds_IsD)
+    sec_ne_nw = Section("NE to NW", model_ne, model_nw, ds_IsD, section_type="shortest")
+
+    with pytest.raises(ValueError):
+        Region("Disconnected", [sec_sw_mid, sec_mid_se, sec_ne_nw], ds_IsD, test=True)
