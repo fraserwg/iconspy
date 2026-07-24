@@ -330,7 +330,8 @@ class Section:
     """
     
     def __init__(self, name, model_station_a, model_station_b, ds_IsD,
-                 section_type=None, contour_target=None, contour_data=None):
+                 section_type=None, contour_target=None, contour_data=None,
+                 weights=None):
 
         _assert_IsD_compatible(ds_IsD)
 
@@ -356,8 +357,15 @@ class Section:
         else:
             if (contour_target is not None) or (contour_data is not None):
                 warnings.warn("section_type is not 'contour' but contour_target and/or contour_data provided. Data will be ignored.")
+                
+        if section_type == "weights":
+            if weights is None:
+                raise ValueError("section_type is 'weights' but no weights provided")
+        else:
+            if weights is not None:
+                warnings.warn("section_type is not 'weights' but weights provided. Data will be ignored.")
 
-        vertex_graph = self.__compute_vertex_graph(ds_IsD, contour_target, contour_data)
+        vertex_graph = self.__compute_vertex_graph(ds_IsD, contour_target, contour_data, weights)
 
         vertex_path_np = find_vertex_path(vertex_graph, self.station_a.vertex, self.station_b.vertex)
         self.vertex_path = ds_IsD["vertex"].sel(vertex=vertex_path_np).rename({"vertex": "step_in_path_v"})
@@ -457,7 +465,7 @@ class Section:
             label=self.name,
         )
 
-    def __compute_vertex_graph(self, ds_IsD, contour_target=None, contour_data=None):
+    def __compute_vertex_graph(self, ds_IsD, contour_target=None, contour_data=None, weights=None):
         _assert_IsD_compatible(ds_IsD)
         
         if self.section_type == "shortest":
@@ -488,9 +496,15 @@ class Section:
         elif self.section_type == "contour":
             weights = self.__contour_weights(ds_IsD, contour_target, contour_data)
         
+        elif self.section_type == "weights":
+            if set(weights.dims) != {"edge"}:
+                raise ValueError("weights must have only one dimension, 'edge'")
+            weights = weights
+            
+        
         else:
             raise NotImplementedError(
-                "Section type requested is not implemented. Should be one of ['shortest', 'isolat', 'isolon', 'great circle', 'rhumb line', 'contour']"
+                "Section type requested is not implemented. Should be one of ['shortest', 'isolat', 'isolon', 'great circle', 'rhumb line', 'contour', 'weights']"
             )
 
         vertex_graph = create_connectivity_matrix(ds_IsD, weights)

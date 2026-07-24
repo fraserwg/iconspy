@@ -160,7 +160,56 @@ def test_Section(ispy_grid):
     assert np.isclose(np.sum(southern_edge_shortest.vlon), -992.25523174)
     assert np.isclose(np.sum(southern_edge_shortest.vlat), -240.1950428)
     assert southern_edge_shortest._uuidOfHGrid == ds_IsD.attrs["uuidOfHGrid"]
-    
+
+    # Explicit weights    
+    southern_edge_weights = Section(
+        "Southern Edge (weights)",
+        model_se_corner,
+        model_sw_corner,
+        ds_IsD,
+        section_type="weights",
+        weights=ds_IsD["edge_length"]
+    )
+    ## Check these attributes on each section type
+    assert southern_edge_weights.section_type == "weights"
+    assert np.sum(southern_edge_weights.vertex_path) == 55795
+    assert np.sum(southern_edge_weights.edge_path) == 143159
+    assert np.sum(southern_edge_weights.edge_orientation) == -1
+    assert np.isclose(np.sum(southern_edge_weights.vlon), -992.25523174)
+    assert np.isclose(np.sum(southern_edge_weights.vlat), -240.1950428)
+    assert southern_edge_weights._uuidOfHGrid == ds_IsD.attrs["uuidOfHGrid"]
+
+    ## Test selecting weight but not providing them
+    with pytest.raises(ValueError):
+        _ = Section(
+            "Southern Edge (weights)",
+            model_se_corner,
+            model_sw_corner,
+            ds_IsD,
+            section_type="weights",
+            weights=None
+        )
+    ## Test providing weights of the wrong shape
+    with pytest.raises(ValueError):
+        _ = Section(
+            "Southern Edge (weights)",
+            model_se_corner,
+            model_sw_corner,
+            ds_IsD,
+            section_type="weights",
+            weights=ds_IsD["clat"]
+        )
+    ## Test providing weights when using a different section type
+    with pytest.warns(UserWarning):
+        _ = Section(
+            "Southern Edge (weights)",
+            model_se_corner,
+            model_sw_corner,
+            ds_IsD,
+            section_type="shortest",
+            weights=ds_IsD["elat"]
+        )  
+
     # Rhumb line
     southern_edge_rhumb_line = Section(
         "Southern Edge (rhumb line)",
