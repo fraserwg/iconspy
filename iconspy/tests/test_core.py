@@ -523,6 +523,17 @@ def test_region(ispy_grid):
     assert np.sum(region_full.contained_cells) == 113806140
     assert region_full.contained_cells.size == 15073
 
+    ## Check inverting the region works
+    region_inverted = region_full.invert_region(ds_IsD)
+    ### unique vertices and edges should be the same
+    assert np.sum(set(region_inverted.vertex_circuit.values)) == np.sum(set(region_full.vertex_circuit.values))
+    assert np.sum(region_inverted.edge_circuit) == 260598
+    ### path orientation should be the same but multiplied by -1
+    assert np.sum(region_inverted.path_orientation) == np.sum(region_full.path_orientation) * -1
+    assert np.sum(region_inverted.contained_cells) == 266820
+    ### contained cells of region and inverted region should cover the grid
+    assert np.sum(region_inverted.contained_cells) + np.sum(region_full.contained_cells) == np.sum(ds_IsD["cell"])
+
     ## Check methods
     assert isinstance(region_full.to_ispy_section(), xr.Dataset)
     extracted = region_full.extract_sections_from_region(ds_IsD)

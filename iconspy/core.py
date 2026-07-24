@@ -900,15 +900,14 @@ class Region:
             transform=ccrs.PlateCarree()
         )
 
-        ax.fill(
-            self.vertex_circuit["vlon"],
-            self.vertex_circuit["vlat"],
+        ax.scatter(
+            self.contained_cells["clon"],
+            self.contained_cells["clat"],
             transform=ccrs.PlateCarree(),
-            alpha=0.5,
-            label=self.name
+            marker=".",
+            label=self.name,
         )
-        
-        warnings.warn("Contained cells does not always plot correctly, particularly if the region encompasses a pole.")
+
     
     def __calculate_vertex_circuit(self, ds_IsD):
         # Create the vertex circuit by combining the sections
