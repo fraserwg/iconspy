@@ -14,4 +14,5 @@
    quickstart
    rapid-26N
    OSNAP
+   changelog
    api

@@ -10,7 +10,6 @@ dependencies:
   - xarray
   - cartopy
   - networkx
-  - shapely
   - matplotlib
   - scipy
   - scikit-learn

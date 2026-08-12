@@ -23,7 +23,7 @@ def get_ds_tgrid_lr():
                 download it"
             )
 
-    ds_grid = xr.open_dataset(grid_path, chunks="auto")
+    ds_grid = xr.open_dataset(grid_path, chunks="auto", engine="h5netcdf")
     return ds_grid
 
 
@@ -45,7 +45,7 @@ def get_ds_fxgrid_lr():
                 download it from {fxgrid_swift_url}"
             )
 
-    ds_fxgrid = xr.open_dataset(fx_grid_path, chunks="auto")
+    ds_fxgrid = xr.open_dataset(fx_grid_path, chunks="auto", engine="h5netcdf")
     return ds_fxgrid
 
 
@@ -62,10 +62,13 @@ def ispy_grid(raw_grid):
 def boundary_target_station():
     return ispy.TargetStation("Fram Strait West", -14, 80)
 
-
 @pytest.fixture()
 def wet_target_station():
     return ispy.TargetStation("Fram Strait Central", 1, 80, boundary=False)
+
+@pytest.fixture()
+def any_target_station():
+    return ispy.TargetStation("Fram Strait Any", 0, 80, boundary=None)
 
 
 @pytest.fixture()
@@ -75,3 +78,7 @@ def wet_model_station(wet_target_station, ispy_grid):
 @pytest.fixture()
 def boundary_model_station(boundary_target_station, ispy_grid):
     return boundary_target_station.to_model_station(ispy_grid)
+
+@pytest.fixture()
+def any_model_station(any_target_station, ispy_grid):
+    return any_target_station.to_model_station(ispy_grid)

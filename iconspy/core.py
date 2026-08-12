@@ -1,15 +1,14 @@
 import os
 import xarray as xr
 import numpy as np
+from collections import deque
 import warnings
 import cartopy.crs as ccrs
 from .utils import (
-    create_connectivity_matrix,
-    create_boundary_connectivity_matrix,
+    _create_connectivity_matrix,
     setup_figure_area,
-    find_vertex_path,
-    vertex_path_to_edge_path,
-    orientation_along_path,
+    _find_vertex_path,
+    _vertex_path_to_edge_path,
     _assert_IsD_compatible,
 )
 
@@ -23,7 +22,6 @@ from . import __version__
 import datetime
 import copy as cp
 import networkx as nx
-import shapely
 from collections import OrderedDict
 
 class _Name:
@@ -38,6 +36,10 @@ class _Name:
     
     def strip_white_space(self):
         return self.name.replace(" ", "")
+    
+    def replace_white_space_with_underscore(self):
+        return self.name.replace(" ", "_")
+
 
 class TargetStation:
     """Represents a target station
@@ -55,7 +57,7 @@ class TargetStation:
         
     Attributes
     ----------
-    name : str
+    name : _Name
         Name of the target station
     target_lon : float
         Longitude of the target station
@@ -92,14 +94,14 @@ class TargetStation:
             to the target station
         """
         if self.boundary == True:
-            station = self.to_boundary_model_station(ds_IsD)
+            station = self._to_boundary_model_station(ds_IsD)
         elif self.boundary == False:
-            station = self.to_wet_model_station(ds_IsD)
+            station = self._to_wet_model_station(ds_IsD)
         else:
-            station = self.to_any_model_station(ds_IsD)
+            station = self._to_any_model_station(ds_IsD)
         return station
     
-    def to_boundary_model_station(self, ds_IsD):
+    def _to_boundary_model_station(self, ds_IsD):
         """Converts the target station to a dry model station regardless of boundary
 
         Parameters
@@ -117,7 +119,7 @@ class TargetStation:
         return BoundaryModelStation(self, ds_IsD)
 
 
-    def to_wet_model_station(self, ds_IsD):
+    def _to_wet_model_station(self, ds_IsD):
         """Converts the target station to a wet model station regardless of boundary
 
         Parameters
@@ -135,7 +137,7 @@ class TargetStation:
         return WetModelStation(self, ds_IsD)
     
     
-    def to_any_model_station(self, ds_IsD):
+    def _to_any_model_station(self, ds_IsD):
         """Converts the target station to a model station regardless of wet/dry
 
         Parameters
@@ -233,7 +235,7 @@ class ModelStation(__ModelStation):
     def __init__(self, target_station, ds_IsD):
         _assert_IsD_compatible(ds_IsD)
         
-        if target_station.boundary == True:
+        if target_station.boundary is not None:
             raise ValueError("target station indicates the model station should be on a boundary")
         super().__init__(target_station)
 
@@ -256,7 +258,7 @@ class WetModelStation(__ModelStation):
     def __init__(self, target_station, ds_IsD):
         _assert_IsD_compatible(ds_IsD)
         
-        if target_station.boundary == True:
+        if target_station.boundary is not False:
             raise ValueError("target station indicates the model station should be on a boundary")
         super().__init__(target_station)
 
@@ -278,7 +280,7 @@ class BoundaryModelStation(__ModelStation):
     def __init__(self, target_station, ds_IsD):
         _assert_IsD_compatible(ds_IsD)
         
-        if target_station.boundary == False:
+        if target_station.boundary is not True:
             raise ValueError("target station indicates the model station should be wet")
         super().__init__(target_station)
 
@@ -296,8 +298,43 @@ class BoundaryModelStation(__ModelStation):
 
 
 class Section:
+    """Represents a path section between two model stations on an ICON grid.
+
+    A ``Section`` computes the shortest valid path between ``model_station_a``
+    and ``model_station_b`` on the provided ``ds_IsD`` horizontal grid and
+    stores both vertex- and edge-based representations of that path.
+
+    Parameters
+    ----------
+    name : str
+        Section name.
+    model_station_a : __ModelStation
+        Start model station.
+    model_station_b : __ModelStation
+        End model station.
+    ds_IsD : xarray.Dataset
+        Ispy grid dataset.
+    section_type : str, optional
+        Section construction mode. Can be any of ['shortest', 'isolat', 'isolon', 'great circle', 'rhumb line', 'contour'].
+    contour_target : float, optional
+        Target contour value used when ``section_type == "contour"``.
+    contour_data : xarray.DataArray, optional
+        One-dimensional data over ``edge`` used for contour-based path
+        construction.
+
+    Attributes
+    ----------
+    vertex_path : xarray.DataArray
+        Vertex indices along the section path.
+    edge_path : xarray.DataArray
+        Edge indices along the section path.
+    edge_orientation : xarray.DataArray
+        Orientation/sign convention for each edge along the path.
+    """
+    
     def __init__(self, name, model_station_a, model_station_b, ds_IsD,
-                 section_type=None, contour_target=None, contour_data=None):
+                 section_type=None, contour_target=None, contour_data=None,
+                 weights=None):
 
         _assert_IsD_compatible(ds_IsD)
 
@@ -310,22 +347,132 @@ class Section:
         self.edge_orientation = None
         self._uuidOfHGrid = ds_IsD.attrs["uuidOfHGrid"]
 
-        vertex_graph = self.__compute_vertex_graph(ds_IsD, contour_target, contour_data)
+        if self.station_a._uuidOfHGrid != self._uuidOfHGrid:
+            raise ValueError("model_station_a is not on the same grid as ds_IsD")
+        if self.station_b._uuidOfHGrid != self._uuidOfHGrid:
+            raise ValueError("model_station_b is not on the same grid as ds_IsD")
 
-        vertex_path_np = find_vertex_path(vertex_graph, self.station_a.vertex, self.station_b.vertex)
+        if self.station_a.vertex == self.station_b.vertex:
+            raise ValueError("model_station_a and model_station_b are the same vertex. Cannot create a section between the same vertex.")
+
+        # Do some checks for contour data
+        if section_type == "contour":
+            if (contour_target is None) and (contour_data is None):
+                raise ValueError("section_type is 'contour' but no contour_target provided")
+            elif contour_data is None:
+                raise ValueError("section_type is 'contour' but no contour_data provided")
+            elif contour_target is None:
+                raise ValueError("section_type is 'contour' but no contour_target provided")
+            if set(contour_data.dims) != {"edge"}:
+                raise ValueError("contour_data should be a 1D xarray.DataArray with dimension 'edge'")
+        else:
+            if (contour_target is not None) or (contour_data is not None):
+                warnings.warn("section_type is not 'contour' but contour_target and/or contour_data provided. Data will be ignored.")
+                
+        if section_type == "weights":
+            if weights is None:
+                raise ValueError("section_type is 'weights' but no weights provided")
+        else:
+            if weights is not None:
+                warnings.warn("section_type is not 'weights' but weights provided. Data will be ignored.")
+
+        vertex_graph = self.__compute_vertex_graph(ds_IsD, contour_target, contour_data, weights)
+
+        vertex_path_np = _find_vertex_path(vertex_graph, self.station_a.vertex, self.station_b.vertex)
         self.vertex_path = ds_IsD["vertex"].sel(vertex=vertex_path_np).rename({"vertex": "step_in_path_v"})
         self.vertex_path["step_in_path_v"] = np.arange(self.vertex_path.sizes["step_in_path_v"])
         
         self.vlon = ds_IsD["vlon"].sel(vertex=self.vertex_path)
         self.vlat = ds_IsD["vlat"].sel(vertex=self.vertex_path)
 
-        self.edge_path = vertex_path_to_edge_path(ds_IsD, self.vertex_path)
+        self.edge_path = _vertex_path_to_edge_path(ds_IsD, self.vertex_path)
 
-        self.set_pyic_orientation_along_path(ds_IsD)
+        self.edge_orientation = self._get_pyic_orientation_along_path(ds_IsD)
 
 
     def __repr__(self):
         return f"Section({self.name}, {self.station_a.name}, {self.station_b.name}, {self.section_type})"
+
+    def to_pyicon_section(self, ds_IsD, fpath=None, attrs=dict()):
+        try:
+            user = os.getlogin()
+        except:
+            user = "unknown"
+        
+        name = self.name.replace_white_space_with_underscore()
+
+        ie_section = xr.zeros_like(ds_IsD["edge"]).astype("int") - 99999
+        ie_section[:self.edge_path.size] = self.edge_path.values.astype("int")
+        ie_section = ie_section.rename(
+            f"ie_{name}"
+        ).assign_attrs(
+            {
+                "section name": str(self.name),
+                "description": f"Edge indices for section {self.name}",
+                "section_type": self.section_type,
+                "start_station": self.station_a.name,
+                "end_station": self.station_b.name,
+                "fill_value": -99999,
+                "ispy_version": __version__,
+                "uuidOfHGrid": self._uuidOfHGrid,
+                "Created by": user,
+            }
+        )
+
+        iv_section = xr.zeros_like(ds_IsD["vertex"]).astype("int") - 99999
+        iv_section[:self.vertex_path.size] = self.vertex_path.values.astype("int")
+        iv_section = iv_section.rename(
+            f"iv_{name}"
+        ).assign_attrs(
+            {
+                "description": f"Vertex indices for section {self.name}",
+                "section_type": self.section_type,
+                "start_station": self.station_a.name,
+                "end_station": self.station_b.name,
+                "fill_value": -99999,
+                "ispy_version": __version__,
+                "uuidOfHGrid": self._uuidOfHGrid,
+                "Created by": user,
+            }
+        )
+
+
+        negative_edges = self.edge_path.where(self.edge_orientation == -1, drop=True)
+        positive_edges = self.edge_path.where(self.edge_orientation == 1, drop=True)
+        mask = xr.where(ds_IsD["edge"].isin(negative_edges), -1, 0)  \
+            + xr.where(ds_IsD["edge"].isin(positive_edges), 1, 0)
+        mask = mask.rename(
+            f"mask_{name}"
+        ).assign_attrs(
+            {
+                "description": f"Mask for section {self.name}",
+                "section_type": self.section_type,
+                "start_station": self.station_a.name,
+                "end_station": self.station_b.name,
+                "ispy version": __version__,
+                "uuidOfHGrid": self._uuidOfHGrid,
+                "Created by": user,
+                "sign convention": "positive to the left when traversing the path",
+            }
+        )
+            
+        ds_pyicon_format = xr.merge(
+            [ie_section, iv_section, mask], compat='no_conflicts'
+        ).drop_attrs(deep=False).assign_attrs(
+            {            
+                "date": str(datetime.datetime.now())[:19],
+                "ispy version": __version__,
+                "uuidOfHGrid": self._uuidOfHGrid,
+                "section name": str(self.name),
+                "Created by": user,
+            }
+        ).assign_attrs(attrs)
+        
+        if fpath is not None:
+            print(f"Output will be saved to {fpath}")
+            ds_pyicon_format.to_netcdf(fpath)
+        
+        return ds_pyicon_format
 
     def to_ispy_section(self, fpath=None, attrs=dict()):
         ds_path = xr.Dataset()
@@ -354,7 +501,7 @@ class Section:
 
         return ds_path
 
-    def set_pyic_orientation_along_path(self, ds_IsD):
+    def _get_pyic_orientation_along_path(self, ds_IsD):
         """Calculate the orientation of the edges along the path
         
         Add the edge orientation object to the section object using code from
@@ -395,7 +542,7 @@ class Section:
             }
         )
         
-        self.edge_orientation = orientation
+        return orientation
 
     def plot(self, ax=None, proj=None, extent=None,
              coastlines=True, gridlines=True,
@@ -409,8 +556,8 @@ class Section:
             transform=ccrs.PlateCarree(),
             label=self.name,
         )
-    
-    def __compute_vertex_graph(self, ds_IsD, contour_target=None, contour_data=None):
+
+    def __compute_vertex_graph(self, ds_IsD, contour_target=None, contour_data=None, weights=None):
         _assert_IsD_compatible(ds_IsD)
         
         if self.section_type == "shortest":
@@ -435,16 +582,24 @@ class Section:
         elif self.section_type == "great circle":
             weights = self.__great_circle_weights(ds_IsD)
         
-        elif self.section_type == "lat lon straight line":
+        elif (self.section_type == "rhumb line"):
             weights = self.__lat_lon_as_cartesian_weights(ds_IsD)
         
         elif self.section_type == "contour":
             weights = self.__contour_weights(ds_IsD, contour_target, contour_data)
         
+        elif self.section_type == "weights":
+            if set(weights.dims) != {"edge"}:
+                raise ValueError("weights must have only one dimension, 'edge'")
+            weights = weights
+            
+        
         else:
-            raise NotImplementedError("section type requested is not implemented")
+            raise NotImplementedError(
+                "Section type requested is not implemented. Should be one of ['shortest', 'isolat', 'isolon', 'great circle', 'rhumb line', 'contour', 'weights']"
+            )
 
-        vertex_graph = create_connectivity_matrix(ds_IsD, weights)
+        vertex_graph = _create_connectivity_matrix(ds_IsD, weights)
 
         return vertex_graph
     
@@ -526,14 +681,48 @@ class Section:
 
 
 class LandSection(Section):
+    def __init__(self, name, model_station_a, model_station_b, ds_IsD):
+        _assert_IsD_compatible(ds_IsD)
+
+        if not isinstance(model_station_a, BoundaryModelStation):
+            raise ValueError("model_station_a should be a BoundaryModelStation")
+        elif not isinstance(model_station_b, BoundaryModelStation):
+            raise ValueError("model_station_b should be a BoundaryModelStation")
+
+
+        self.name = _Name(name)
+        self.station_a = model_station_a
+        self.station_b = model_station_b
+        self.section_type = "shortest"
+        self.vertex_path = None
+        self.edge_path = None
+        self.edge_orientation = None
+        self._uuidOfHGrid = ds_IsD.attrs["uuidOfHGrid"]
+
+        vertex_graph = self.__compute_vertex_graph(ds_IsD)
+
+        vertex_path_np = _find_vertex_path(vertex_graph, self.station_a.vertex, self.station_b.vertex)
+        self.vertex_path = ds_IsD["vertex"].sel(vertex=vertex_path_np).rename({"vertex": "step_in_path_v"})
+        self.vertex_path["step_in_path_v"] = np.arange(self.vertex_path.sizes["step_in_path_v"])
+
+        self.vlon = ds_IsD["vlon"].sel(vertex=self.vertex_path)
+        self.vlat = ds_IsD["vlat"].sel(vertex=self.vertex_path)
+
+        self.edge_path = _vertex_path_to_edge_path(ds_IsD, self.vertex_path)
+
+        self.edge_orientation = self._get_pyic_orientation_along_path(ds_IsD)
+    
+    
     def __repr__(self):
         return f"LandSection({self.name}, {self.station_a.name}, {self.station_b.name}, {self.section_type})"
-    
-    def __compute_vertex_graph(self, ds_IsD, contour_target=None, contour_data=None):
+
+
+    def __compute_vertex_graph(self, ds_IsD):
         if self.section_type != "shortest":
             raise ValueError(f"LandSection should have section type of 'shortest', not {self.section_type}")
 
-        vertex_graph = create_boundary_connectivity_matrix(ds_IsD, weight_type="distance")
+        weights = ds_IsD["edge_length"] * xr.where(ds_IsD["edge_sea_land_mask"].compute() == 2, 1, 1e6)
+        vertex_graph = _create_connectivity_matrix(ds_IsD, weights)
 
         return vertex_graph
 
@@ -606,17 +795,17 @@ class CombinedSection(Section):
         
         # Get the edge paths from the vertex path
         # (We recalculate this to be on the safe side)
-        self.edge_path = vertex_path_to_edge_path(ds_IsD, self.vertex_path)
+        self.edge_path = _vertex_path_to_edge_path(ds_IsD, self.vertex_path)
         
         # Get the new vertex coordinates from the vertex path
         self.vlon = ds_IsD["vlon"].sel(vertex=self.vertex_path)
         self.vlat = ds_IsD["vlat"].sel(vertex=self.vertex_path)   
 
-        self.set_pyic_orientation_along_path(ds_IsD)
+        self.edge_orientation = self._get_pyic_orientation_along_path(ds_IsD)
 
 
 class Region:
-    def __init__(self, name, section_list, ds_IsD, test=False, manual_order=False):
+    def __init__(self, name, section_list, ds_IsD, manual_order=False):
         self.name = _Name(name)
         self.section_list = None
         self._uuidOfHGrid = ds_IsD.attrs["uuidOfHGrid"]
@@ -634,21 +823,154 @@ class Region:
 
         # Get the vertex, edge and orientation xr.DataArrays
         self.vertex_circuit = self.__calculate_vertex_circuit(ds_IsD)
-        if not test:
-            self.edge_circuit = vertex_path_to_edge_path(ds_IsD, self.vertex_circuit)
-            self.path_orientation = orientation_along_path(ds_IsD, self.vertex_circuit, self.edge_circuit)
-            self.contained_cells = self.__calculate_contained_cells(ds_IsD)
+        self.edge_circuit = _vertex_path_to_edge_path(ds_IsD, self.vertex_circuit)
+        self.path_orientation = self._get_pyic_orientation_along_path(ds_IsD)
+        self.contained_cells = self.__calculate_contained_cells(ds_IsD)
     
+    
+    def invert_region(self, ds_IsD):
+        inverted_section_list = self.section_list[::-1]
+        inverted_region = Region(self.name, inverted_section_list, ds_IsD)
+        return inverted_region
     
     def __repr__(self):
         return f"Region({self.name}, {self.section_list})"
 
+    def _get_pyic_orientation_along_path(self, ds_IsD):
+        """Calculate the orientation of the edges along the path
+        
+        Add the edge orientation object to the section object using code from
+        pyicon.
+        
+        Parameters
+        ----------
+        self : iconspy.Section
+            The section you wish to calculate the edge orientation for
 
-    def to_pyicon_section(self, fpath):
-        raise NotImplementedError("Method not yet implemented")
+        ds_IsD : xarray.Dataset
+            A dataset containing the model grid information, having been
+            operated on by iconspy.convert_tgrid_data()
+        
+        Notes
+        -----
+        Original code from pyicon under the MIT license.
+        Modified by Fraser Goldsworth on 18.06.2025.
+        See LICENSE file for more information.
+
+        """
+        
+        _assert_IsD_compatible(ds_IsD)
+        
+        ie_list = self.edge_circuit
+        iv_list = self.vertex_circuit
+        
+        or_list = np.zeros((ie_list.size))
+        for nn in range(ie_list.size):
+            iel = ds_IsD.edges_of_vertex[iv_list[nn],:]==ie_list[nn]
+            or_list[nn] = ds_IsD.edge_orientation[iv_list[nn], iel].item()
+            
+        orientation = xr.ones_like(self.edge_circuit) * or_list
+        
+        orientation = orientation.assign_attrs(
+            {
+                "sign convention": "positive to the left when traversing the path (into the region)",
+            }
+        )
+        
+        return orientation
 
 
-    def to_ispy_section(self, fpath=None, attrs=dict()):
+    def to_pyicon_region(self, ds_IsD, fpath=None, attrs=dict()):
+        try:
+            user = os.getlogin()
+        except:
+            user = "unknown"
+        
+        name = self.name.replace_white_space_with_underscore()
+
+        ie_section = xr.zeros_like(ds_IsD["edge"]).astype("int") - 99999
+        ie_section[:self.edge_circuit.size] = self.edge_circuit.values.astype("int")
+        ie_section = ie_section.rename(
+            f"ie_{name}"
+        ).assign_attrs(
+            {
+                "region name": str(self.name),
+                "description": f"Edge indices for region {self.name}",
+                "fill_value": -99999,
+                "ispy_version": __version__,
+                "uuidOfHGrid": self._uuidOfHGrid,
+                "Created by": user,
+            }
+        )
+
+        iv_section = xr.zeros_like(ds_IsD["vertex"]).astype("int") - 99999
+        iv_section[:self.vertex_circuit.size] = self.vertex_circuit.values.astype("int")
+        iv_section = iv_section.rename(
+            f"iv_{name}"
+        ).assign_attrs(
+            {
+                "description": f"Vertex indices for region {self.name}",
+                "fill_value": -99999,
+                "ispy_version": __version__,
+                "uuidOfHGrid": self._uuidOfHGrid,
+                "Created by": user,
+            }
+        )
+
+        ic_section = xr.zeros_like(ds_IsD["cell"]).astype("int") - 99999
+        ic_section[:self.contained_cells.size] = self.contained_cells.values.astype("int")
+        ic_section = ic_section.rename(
+            f"ic_{name}"
+        ).assign_attrs(
+            {
+                "description": f"Cell indices for region {self.name}",
+                "fill_value": -99999,
+                "ispy_version": __version__,
+                "uuidOfHGrid": self._uuidOfHGrid,
+                "Created by": user,
+            }
+        )
+
+
+        negative_edges = self.edge_circuit.where(self.path_orientation == -1, drop=True)
+        positive_edges = self.edge_circuit.where(self.path_orientation == 1, drop=True)
+        mask = xr.where(ds_IsD["edge"].isin(negative_edges), -1, 0)  \
+            + xr.where(ds_IsD["edge"].isin(positive_edges), 1, 0)
+        mask = mask.rename(
+            f"mask_{name}"
+        ).assign_attrs(
+            {
+                "region name": str(self.name),
+                "description": f"Mask for region {self.name}",
+                "ispy version": __version__,
+                "uuidOfHGrid": self._uuidOfHGrid,
+                "Created by": user,
+                "sign convention": "positive to the left when traversing the path (into the region)",
+            }
+        )
+            
+        ds_pyicon_format = xr.merge(
+            [ie_section, iv_section, ic_section, mask], compat='no_conflicts',
+        ).drop_attrs(deep=False).assign_attrs(
+            {            
+                "date": str(datetime.datetime.now())[:19],
+                "ispy version": __version__,
+                "uuidOfHGrid": self._uuidOfHGrid,
+                "region name": str(self.name),
+                "Created by": user,
+            }
+        ).assign_attrs(attrs)
+
+        ds_pyicon_format
+        
+        if fpath is not None:
+            print(f"Output will be saved to {fpath}")
+            ds_pyicon_format.to_netcdf(fpath)
+        
+        return ds_pyicon_format
+
+
+    def to_ispy_region(self, fpath=None, attrs=dict()):
             
         ds_path = xr.Dataset()
         ds_path["edge_path"] = self.edge_circuit
@@ -666,7 +988,7 @@ class Region:
                 "date": str(datetime.datetime.now())[:19],
                 "ispy version": __version__,
                 "uuidOfHGrid": self._uuidOfHGrid,
-                "section name": str(self.name),
+                "region name": str(self.name),
                 "Created by": user,
             }
         ).assign_attrs(attrs)
@@ -677,17 +999,62 @@ class Region:
 
         return ds_path
 
+
     def __calculate_contained_cells(self, ds_IsD):
-        ring_coords = xr.concat(
-            (self.vertex_circuit["vlon"], self.vertex_circuit["vlat"]), dim="cart"
-        ).transpose(..., "cart")
-        
-        enclosed_area = shapely.polygons(ring_coords)
-        cell_points = shapely.points(ds_IsD["clon"], ds_IsD["clat"])
-        cell_idxs, = np.where(enclosed_area.contains(cell_points))
-        contained_cells = ds_IsD["cell"].isel(cell=cell_idxs)
-        return contained_cells
-    
+        # ── 1. Identify cells immediately inside (left) and outside (right) the boundary ──
+
+        # shape: (nedges, 2)
+        adjacent_cells_to_circuit = ds_IsD["adjacent_cell_of_edge"].sel(
+            edge=self.edge_circuit
+        ).values
+
+        # When path_orientation = +1, the left cell is nc_e=0; when -1, the left cell is nc_e=1
+        left_nc_e = (self.path_orientation.values == -1).astype(int)  # 0 or 1 per edge
+        edge_count = len(self.edge_circuit)
+        circuit_adj = adjacent_cells_to_circuit # (nedges, 2)
+
+        cells_to_the_left_of_the_path  = circuit_adj[np.arange(edge_count), left_nc_e]
+        cells_to_the_right_of_the_path = circuit_adj[np.arange(edge_count), 1 - left_nc_e]
+
+        # # path_orientation = +1 → left cell is nc_e=0; -1 → left cell is nc_e=1
+        # # Use direct integer indexing to avoid cell-0 being confused with a -1 sentinel.
+        # orientation  = self.path_orientation.values
+        # nc_e_left    = (orientation == -1).astype(int)
+        # nedges       = len(orientation)
+        # cells_to_the_left_of_the_path = adj_cells_on_circuit[np.arange(nedges), nc_e_left]
+
+        # ── 2. Flood-fill interior from the boundary-adjacent interior cells ──────────────
+        # Two cells share an edge iff they are adjacent via adjacent_cell_of_cell.
+        # The k-th neighbour in adjacent_cell_of_cell[i] is connected via edge_of_cell[i][k].
+        # We stop whenever a hop would cross a boundary edge.
+
+        boundary_edge_set = set(int(e) for e in self.edge_circuit.values)
+        adj_cell_of_cell  = ds_IsD["adjacent_cell_of_cell"].values   # (ncells, 3)
+        edge_of_cell      = ds_IsD["edge_of_cell"].values            # (ncells, 3)
+
+        seeds     = set(int(c) for c in cells_to_the_left_of_the_path if c >= 0)
+        contained = set(seeds)
+        queue     = deque(seeds)
+
+        while queue:
+            cell = queue.popleft()
+            for neighbor, shared_edge in zip(adj_cell_of_cell[cell], edge_of_cell[cell]):
+                if neighbor < 0 or shared_edge in boundary_edge_set:
+                    continue
+                if neighbor not in contained:
+                    contained.add(neighbor)
+                    queue.append(neighbor)
+
+        # ── 3. Return as an xarray DataArray matching the cell coordinate ─────────────────
+        all_contained_cells = ds_IsD["cell"].isel(
+            cell=sorted(contained)
+        ).assign_attrs(
+            {
+                "convention": "cells contained within the region lie to the left when traversing the circuit"
+            }
+        )
+        return all_contained_cells
+
 
     def plot(self, ax=None, proj=None, extent=None,
              coastlines=True, gridlines=True,
@@ -701,13 +1068,14 @@ class Region:
             transform=ccrs.PlateCarree()
         )
 
-        ax.fill(
-            self.vertex_circuit["vlon"],
-            self.vertex_circuit["vlat"],
+        ax.scatter(
+            self.contained_cells["clon"],
+            self.contained_cells["clat"],
             transform=ccrs.PlateCarree(),
-            alpha=0.5,
-            label=self.name
+            marker=".",
+            label=self.name,
         )
+
     
     def __calculate_vertex_circuit(self, ds_IsD):
         # Create the vertex circuit by combining the sections
