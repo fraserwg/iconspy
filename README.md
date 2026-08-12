@@ -39,3 +39,9 @@ If you have feature requests feel free to reach out there also.
 
 ## Acknowledgements
 This software was developed as part of the EERIE project (grant agreement no 101081383) funded by the European Union.
+
+This software contains modified code from the [`pyicon`](https://gitlab.dkrz.de/m300602/pyicon) package, namely:
+  - function iconspy.core.Section._get_pyic_orientation_along_path
+  - function iconspy.utils._pyicon_convert_tgrid_data
+An MIT license applies to these parts of the code (see also the `LICENSE` file).
+I am grateful to Nils Brüggemann for his ongoing development and maintenance of the [`pyicon`](https://gitlab.dkrz.de/m300602/pyicon) package.
