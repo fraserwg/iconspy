@@ -13,22 +13,22 @@ in particular the ability to join together multiple sections and construct secti
 Documentation is hosted [here](https://eerie-project.github.io/iconspy/) and the package code [here](https://github.com/eerie-project/iconspy).
 
 ## Citation
-If you use this software in your work, please cite it with either an in text citation (preferred) or in the acknowledgements. 
-### Suggested text
+If you use this software in your work, please cite it with either an in-text citation (preferred) or in the acknowledgements. 
+
+For the text I recommend something along the lines of
 > Sections were constructed on the native ICON grid using `iconspy` (Goldsworth, 2026).
 
-### Suggested bibliography entry
-#### Text
-Fraser Goldsworth. (2026). eerie-project/iconspy: v0.2.1 (Version 0.2.1) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.21904576
+Followed by a bibliography entry of the form
+> Fraser W. Goldsworth (2026). eerie-project/iconspy: vX (Version X) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.21904576
 
-#### `.bib` format
+If you use LaTeX you may want to use the bibtex entry:
 ```
 @software{goldsworth2026iconspy,
-  author  = {Goldsworth, Fraser},
-  title   = {{eerie-project/iconspy: v0.2.2}},
+  author  = {Goldsworth, Fraser William},
+  title   = {{eerie-project/iconspy: vX}},
   year    = {2026},
   publisher = {Zenodo},
-  version = {0.2.2},
+  version = {X},
   doi     = {10.5281/zenodo.21904576},
 }
 ```
