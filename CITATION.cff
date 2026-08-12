@@ -1,0 +1,13 @@
+# CITATION.cff
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "iconspy (ICON Sections in PYthon)"
+version: 0.2.2
+date-released: 2026-08-12
+authors:
+  - family-names: "Goldsworth"
+    given-names: "Fraser William"
+    orcid: "https://orcid.org/0000-0001-8677-2105"
+repository-code: "https://github.com/eerie-project/iconspy"
+license: BSD-3-Clause
+doi: 10.5281/zenodo.21904576

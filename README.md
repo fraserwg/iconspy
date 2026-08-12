@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21904575.svg)](https://doi.org/10.5281/zenodo.21904575)
 # iconspy
 
 ## ICON Sections in PYthon
@@ -10,6 +11,27 @@ however, `iconspy` offers some extra functionality —
 in particular the ability to join together multiple sections and construct sections which follow contours.
 
 Documentation is hosted [here](https://eerie-project.github.io/iconspy/) and the package code [here](https://github.com/eerie-project/iconspy).
+
+## Citation
+If you use this software in your work, please cite it with either an in text citation (preferred) or in the acknowledgements. 
+### Suggested text
+> Sections were constructed on the native ICON grid using `iconspy` (Goldsworth, 2026).
+
+### Suggested bibliography entry
+#### Text
+Fraser Goldsworth. (2026). eerie-project/iconspy: v0.2.1 (Version 0.2.1) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.21904576
+
+#### `.bib` format
+```
+@software{goldsworth2026iconspy,
+  author  = {Goldsworth, Fraser},
+  title   = {{eerie-project/iconspy: v0.2.2}},
+  year    = {2026},
+  publisher = {Zenodo},
+  version = {0.2.2},
+  doi     = {10.5281/zenodo.21904576},
+}
+```
 
 ## Issues and feature requests
 If you encounter any problems with the code please raise an issue on [github](https://github.com/eerie-project/iconspy).
