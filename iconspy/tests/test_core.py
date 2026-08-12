@@ -374,7 +374,7 @@ def test_Section(ispy_grid):
     ### Check to_ispy_section method
     southern_edge_shortest_ispy_section = southern_edge_shortest.to_ispy_section()
     assert isinstance(southern_edge_shortest_ispy_section, xr.Dataset)
-    southern_edge_shortest_pyicon_section = southern_edge_shortest.to_pyicon_section()
+    southern_edge_shortest_pyicon_section = southern_edge_shortest.to_pyicon_section(ds_IsD)
     assert isinstance(southern_edge_shortest_pyicon_section, xr.Dataset)
 
 
