@@ -1,6 +1,7 @@
 # Changelog
 
 ## v0.2.2 (12/08/2026)
+- Fixed failing pyicon section conversion test
 - Added missing items to Changelog
 - Added citation and zenodo integration
 - Incrememented versions in CHANGELOG.md, pyproject.toml, CITATION.cff, and README.md
