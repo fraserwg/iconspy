@@ -13,7 +13,7 @@ in particular the ability to join together multiple sections and construct secti
 Documentation is hosted [here](https://eerie-project.github.io/iconspy/) and the package code [here](https://github.com/eerie-project/iconspy).
 
 ## Citation
-If you use this software in your work, please cite it with either an in-text citation (preferred) or in the acknowledgements. 
+If you use this software in your work, please consider citing it with either an in-text citation (preferred) or in the acknowledgements. 
 
 For the text I recommend something along the lines of
 > Sections were constructed on the native ICON grid using `iconspy` (Goldsworth, 2026).
@@ -43,5 +43,6 @@ This software was developed as part of the EERIE project (grant agreement no 101
 This software contains modified code from the [`pyicon`](https://gitlab.dkrz.de/m300602/pyicon) package, namely:
   - function iconspy.core.Section._get_pyic_orientation_along_path
   - function iconspy.utils._pyicon_convert_tgrid_data
+
 An MIT license applies to these parts of the code (see also the `LICENSE` file).
 I am grateful to Nils Brüggemann for his ongoing development and maintenance of the [`pyicon`](https://gitlab.dkrz.de/m300602/pyicon) package.
