@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>iconspy &mdash; iconspy 0.2.1 documentation</title>
+  <title>iconspy &mdash; iconspy 0.2.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=37f418d5"></script>
+      <script src="_static/documentation_options.js?v=000c92bf"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -79,7 +79,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="iconspy">
+  <p><a class="reference external" href="https://doi.org/10.5281/zenodo.21904575"><img alt="DOI" src="https://zenodo.org/badge/doi/10.5281/zenodo.21904575.svg" /></a></p>
+<section id="iconspy">
 <h1>iconspy<a class="headerlink" href="#iconspy" title="Link to this heading"></a></h1>
 <section id="icon-sections-in-python">
 <h2>ICON Sections in PYthon<a class="headerlink" href="#icon-sections-in-python" title="Link to this heading"></a></h2>
@@ -91,6 +92,29 @@ however, <code class="docutils literal notranslate"><span class="pre">iconspy</s
 in particular the ability to join together multiple sections and construct sections which follow contours.</p>
 <p>Documentation is hosted <a class="reference external" href="https://eerie-project.github.io/iconspy/">here</a> and the package code <a class="reference external" href="https://github.com/eerie-project/iconspy">here</a>.</p>
 </section>
+<section id="citation">
+<h2>Citation<a class="headerlink" href="#citation" title="Link to this heading"></a></h2>
+<p>If you use this software in your work, please consider citing it with either an in-text citation (preferred) or in the acknowledgements.</p>
+<p>For the text I recommend something along the lines of</p>
+<blockquote>
+<div><p>Sections were constructed on the native ICON grid using <code class="docutils literal notranslate"><span class="pre">iconspy</span></code> (Goldsworth, 2026).</p>
+</div></blockquote>
+<p>Followed by a bibliography entry of the form</p>
+<blockquote>
+<div><p>Goldsworth, F. W. (2026). eerie-project/iconspy: vX (Version X) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.21904575</p>
+</div></blockquote>
+<p>If you use LaTeX you may want to use the bibtex entry:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@software</span><span class="p">{</span><span class="n">goldsworth2026iconspy</span><span class="p">,</span>
+  <span class="n">author</span>  <span class="o">=</span> <span class="p">{</span><span class="n">Goldsworth</span><span class="p">,</span> <span class="n">Fraser</span> <span class="n">William</span><span class="p">},</span>
+  <span class="n">title</span>   <span class="o">=</span> <span class="p">{{</span><span class="n">eerie</span><span class="o">-</span><span class="n">project</span><span class="o">/</span><span class="n">iconspy</span><span class="p">:</span> <span class="n">vX</span><span class="p">}},</span>
+  <span class="n">year</span>    <span class="o">=</span> <span class="p">{</span><span class="mi">2026</span><span class="p">},</span>
+  <span class="n">publisher</span> <span class="o">=</span> <span class="p">{</span><span class="n">Zenodo</span><span class="p">},</span>
+  <span class="n">version</span> <span class="o">=</span> <span class="p">{</span><span class="n">X</span><span class="p">},</span>
+  <span class="n">doi</span>     <span class="o">=</span> <span class="p">{</span><span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.21904575</span><span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
 <section id="issues-and-feature-requests">
 <h2>Issues and feature requests<a class="headerlink" href="#issues-and-feature-requests" title="Link to this heading"></a></h2>
 <p>If you encounter any problems with the code please raise an issue on <a class="reference external" href="https://github.com/eerie-project/iconspy">github</a>.
@@ -99,6 +123,13 @@ If you have feature requests feel free to reach out there also.</p>
 <section id="acknowledgements">
 <h2>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Link to this heading"></a></h2>
 <p>This software was developed as part of the EERIE project (grant agreement no 101081383) funded by the European Union.</p>
+<p>This software contains modified code from the <a class="reference external" href="https://gitlab.dkrz.de/m300602/pyicon"><code class="docutils literal notranslate"><span class="pre">pyicon</span></code></a> package, namely:</p>
+<ul class="simple">
+<li><p>function iconspy.core.Section._get_pyic_orientation_along_path</p></li>
+<li><p>function iconspy.utils._pyicon_convert_tgrid_data</p></li>
+</ul>
+<p>An MIT license applies to these parts of the code (see also the <code class="docutils literal notranslate"><span class="pre">LICENSE</span></code> file).
+I am grateful to Nils Brüggemann for his ongoing development and maintenance of the <a class="reference external" href="https://gitlab.dkrz.de/m300602/pyicon"><code class="docutils literal notranslate"><span class="pre">pyicon</span></code></a> package.</p>
 </section>
 </section>
 <div class="toctree-wrapper compound">
@@ -133,6 +164,7 @@ If you have feature requests feel free to reach out there also.</p>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#v0-2-2-12-08-2026">v0.2.2 (12/08/2026)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#v0-2-1-12-08-2026">v0.2.1 (12/08/2026)</a></li>
 </ul>
 </li>
