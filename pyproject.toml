@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "iconspy"
-version = "0.2.0"
+version = "0.2.1"
 description = "ICON Sections in PYthon"
 authors = [
     { name = "Fraser William Goldsworth", email = "frasergocean@gmail.com" }
