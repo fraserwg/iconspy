@@ -19,7 +19,7 @@ For the text I recommend something along the lines of
 > Sections were constructed on the native ICON grid using `iconspy` (Goldsworth, 2026).
 
 Followed by a bibliography entry of the form
-> Fraser W. Goldsworth (2026). eerie-project/iconspy: vX (Version X) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.21904576
+> Goldsworth, F. W. (2026). eerie-project/iconspy: vX (Version X) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.21904575
 
 If you use LaTeX you may want to use the bibtex entry:
 ```
@@ -29,7 +29,7 @@ If you use LaTeX you may want to use the bibtex entry:
   year    = {2026},
   publisher = {Zenodo},
   version = {X},
-  doi     = {10.5281/zenodo.21904576},
+  doi     = {10.5281/zenodo.21904575},
 }
 ```
 
