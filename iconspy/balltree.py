@@ -12,30 +12,14 @@ class IspyBoundaryBallTree(_IspyBallTree):
     def __init__(self, ds_IsD):
         super().__init__(ds_IsD)
 
-        # Find dry vertices
-        vertices_of_dry_cells = ds_IsD["vertex_of_cell"].where(
-            ds_IsD["cell_sea_land_mask"].load() == 1, drop=True
-        )
-        
-        # Find wet verices
-        vertices_of_wet_cells = ds_IsD["vertex_of_cell"].where(
-            ds_IsD["cell_sea_land_mask"].load() == -1, drop=True
-        )
-        
-        # Boundary vertices are both dry and wet
-        boundary_vertices = np.intersect1d(
-            vertices_of_dry_cells, vertices_of_wet_cells
-        ).astype("int32")
-
         # Create a data array of the boundary vertex lat lon pairs in radians
         self.boundary_vertex_pairs = xr.concat(
             (
-                np.radians(ds_IsD["vlat"].sel(vertex=boundary_vertices)),
-                np.radians(ds_IsD["vlon"].sel(vertex=boundary_vertices)),
+                np.radians(ds_IsD["vlat"].isel(vertex=ds_IsD["boundary_vertex_mask"])),
+                np.radians(ds_IsD["vlon"].isel(vertex=ds_IsD["boundary_vertex_mask"])),
             ),
             dim="cart_h",
         ).transpose(..., "cart_h")
-    
         
         # Construct a BallTree from these vertices
         self.BallTree = BallTree(self.boundary_vertex_pairs, metric="haversine")
@@ -88,6 +72,7 @@ def find_boundary_vertex(ds_IsD,
 class IspyWetBallTree(_IspyBallTree):
     def __init__(self, ds_IsD):
         super().__init__(ds_IsD)        
+        
         
         self.vertex_pairs = xr.concat(
             (

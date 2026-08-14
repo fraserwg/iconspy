@@ -342,6 +342,22 @@ def convert_tgrid_data(ds_tgrid):
 
     ds_IsD = ds_IsD.load()
     ds_IsD["edge_vertices"] = ds_IsD["edge_vertices"].astype("int32")
+
+    
+    # Find dry vertices
+    vertices_of_dry_cells = ds_IsD["vertex_of_cell"].where(
+        ds_IsD["cell_sea_land_mask"].load() == 1, drop=True
+    )
+    # Find wet verices
+    vertices_of_wet_cells = ds_IsD["vertex_of_cell"].where(
+        ds_IsD["cell_sea_land_mask"].load() == -1, drop=True
+    )
+    # Boundary vertices are both dry and wet
+    boundary_vertices = np.intersect1d(
+        vertices_of_dry_cells, vertices_of_wet_cells
+    ).astype("int32")
+    
+    ds_IsD["boundary_vertex_mask"] = ds_IsD["vertex"].isin(boundary_vertices)
     
     boundary_BallTree = IspyBoundaryBallTree(ds_IsD)
     wet_BallTree = IspyWetBallTree(ds_IsD)

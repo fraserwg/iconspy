@@ -1,4 +1,6 @@
 # Changelog
+## vX
+- Refactored BallTree to allow more flexible use
 
 ## v0.2.2 (12/08/2026)
 - Fixed failing pyicon section conversion test
