@@ -1,4 +1,4 @@
-[![Anaconda-Server Badge](https://anaconda.org/conda-forge/iconspy/badges/version.svg)](https://anaconda.org/conda-forge/iconspy) [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.21904575.svg)](https://doi.org/10.5281/zenodo.21904575)
+[![PyPI version](https://img.shields.io/pypi/v/iconspy.svg)](https://pypi.org/project/iconspy/) [![Anaconda-Server Badge](https://anaconda.org/conda-forge/iconspy/badges/version.svg)](https://anaconda.org/conda-forge/iconspy) [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.21904575.svg)](https://doi.org/10.5281/zenodo.21904575)
 # iconspy
 
 ## ICON Sections in PYthon
