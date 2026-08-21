@@ -2,7 +2,13 @@
 ## vX
 - Refactored BallTree to allow more flexible use
 
-## v0.2.3
+## v0.2.5 (21/08/2026)
+- Further updates to PyPi publishing
+
+## v0.2.4 (21/08/2026)
+- Updates to PyPI publishing
+
+## v0.2.3 (21/08/2026)
 - Added PyPI publishing script
 
 ## v0.2.2 (12/08/2026)

@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
+requires = ["setuptools>=77.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "iconspy"
 license = "BSD-3-Clause"
-version = "0.2.3"
+version = "0.2.5"
 description = "ICON Sections in PYthon"
 authors = [
     { name = "Fraser William Goldsworth", email = "frasergocean@gmail.com" }
@@ -41,7 +41,6 @@ dependencies = [
 ]
 
 readme = "README.md"
-license = { text = "BSD-3-Clause" }
 requires-python = ">=3.11"
 classifiers = [
     "Programming Language :: Python :: 3",
