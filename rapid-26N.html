@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RAPID 26.5ºN &mdash; iconspy 0.2.2 documentation</title>
+  <title>RAPID 26.5ºN &mdash; iconspy 0.2.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=000c92bf"></script>
+      <script src="_static/documentation_options.js?v=a47416a6"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -824,21 +824,21 @@ comparable measurements in models. As such we will define two sections along the
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define the target stations</span>
 <span class="n">rapid_target_west</span> <span class="o">=</span> <span class="n">ispy</span><span class="o">.</span><span class="n">TargetStation</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;RAPID West&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"RAPID West"</span><span class="p">,</span>
     <span class="n">lon</span><span class="o">=-</span><span class="mi">80</span><span class="p">,</span>
     <span class="n">lat</span><span class="o">=</span><span class="mf">26.5</span><span class="p">,</span>
     <span class="n">boundary</span><span class="o">=</span><span class="kc">True</span>
 <span class="p">)</span>
 
 <span class="n">rapid_target_gulf</span> <span class="o">=</span> <span class="n">ispy</span><span class="o">.</span><span class="n">TargetStation</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;RAPID Gulf&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"RAPID Gulf"</span><span class="p">,</span>
     <span class="n">lon</span><span class="o">=</span> <span class="o">-</span><span class="mf">76.25</span><span class="p">,</span>
     <span class="n">lat</span><span class="o">=</span><span class="mf">26.5</span><span class="p">,</span>
     <span class="n">boundary</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">)</span>
 
 <span class="n">rapid_target_east</span> <span class="o">=</span> <span class="n">ispy</span><span class="o">.</span><span class="n">TargetStation</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;RAPID East&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"RAPID East"</span><span class="p">,</span>
     <span class="n">lon</span><span class="o">=-</span><span class="mi">14</span><span class="p">,</span>
     <span class="n">lat</span><span class="o">=</span><span class="mf">26.5</span><span class="p">,</span>
     <span class="n">boundary</span><span class="o">=</span><span class="kc">True</span>
@@ -849,7 +849,7 @@ comparable measurements in models. As such we will define two sections along the
 <span class="n">rapid_model_stations</span> <span class="o">=</span> <span class="p">[</span><span class="n">target</span><span class="o">.</span><span class="n">to_model_station</span><span class="p">(</span><span class="n">ds_IsD</span><span class="p">)</span> <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">rapid_targets</span><span class="p">]</span>
 
 <span class="c1"># Check the target and model sections appear roughly where we expect them too</span>
-<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;projection&quot;</span><span class="p">:</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()})</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">"projection"</span><span class="p">:</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()})</span>
 <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">rapid_model_stations</span><span class="p">:</span>
     <span class="n">station</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_extent</span><span class="p">([</span><span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">])</span>
@@ -870,23 +870,23 @@ comparable measurements in models. As such we will define two sections along the
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Construct sections from our model stations</span>
 
 <span class="n">florida_current</span> <span class="o">=</span> <span class="n">ispy</span><span class="o">.</span><span class="n">Section</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Florida Current&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"Florida Current"</span><span class="p">,</span>
     <span class="n">model_station_a</span><span class="o">=</span><span class="n">rapid_model_stations</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
     <span class="n">model_station_b</span><span class="o">=</span><span class="n">rapid_model_stations</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
     <span class="n">ds_IsD</span><span class="o">=</span><span class="n">ds_IsD</span><span class="p">,</span>
-    <span class="n">section_type</span><span class="o">=</span><span class="s2">&quot;isolat&quot;</span><span class="p">,</span>
+    <span class="n">section_type</span><span class="o">=</span><span class="s2">"isolat"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">interior</span> <span class="o">=</span> <span class="n">ispy</span><span class="o">.</span><span class="n">Section</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Interior 26.5N&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"Interior 26.5N"</span><span class="p">,</span>
     <span class="n">model_station_a</span><span class="o">=</span><span class="n">rapid_model_stations</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
     <span class="n">model_station_b</span><span class="o">=</span><span class="n">rapid_model_stations</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
     <span class="n">ds_IsD</span><span class="o">=</span><span class="n">ds_IsD</span><span class="p">,</span>
-    <span class="n">section_type</span><span class="o">=</span><span class="s2">&quot;isolat&quot;</span><span class="p">,</span>
+    <span class="n">section_type</span><span class="o">=</span><span class="s2">"isolat"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># Visualise the section</span>
-<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;projection&quot;</span><span class="p">:</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()})</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">"projection"</span><span class="p">:</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()})</span>
 <span class="n">florida_current</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
 <span class="n">interior</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_extent</span><span class="p">([</span><span class="o">-</span><span class="mi">85</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">])</span>
@@ -906,7 +906,7 @@ comparable measurements in models. As such we will define two sections along the
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;Created in&quot;</span><span class="p">:</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ispy</span><span class="o">.</span><span class="n">__path__</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">/../examples/rapid-26N.ipynb&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
+    <span class="s2">"Created in"</span><span class="p">:</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ispy</span><span class="o">.</span><span class="n">__path__</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">/../examples/rapid-26N.ipynb"</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
 <span class="p">}</span>
 
 <span class="n">ds_florida_current</span> <span class="o">=</span> <span class="n">florida_current</span><span class="o">.</span><span class="n">to_ispy_section</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="n">attrs</span><span class="p">)</span>
